@@ -9,6 +9,7 @@
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-playwright": "^2.2.0",
     "eslint-plugin-prettier": "^5.5.3",
+    "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
     "typescript": "^5.8.3"
   },
@@ -16,5 +17,11 @@
     "pw:eslint": "npx eslint . --ext .ts,.js --fix",
     "pw:prettier": "npx prettier --write '**/*.{js,ts}'",
     "pw:run:functional": "npx playwright test tests/functional"
+  },
+  "lint-staged": {
+    "**/*.{js,ts}": [
+      "npm run pw:eslint",
+      "npm run pw:prettier"
+    ]
   }
 }

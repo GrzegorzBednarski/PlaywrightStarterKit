@@ -53,6 +53,12 @@ To manually run ESLint and automatically fix issues, use:
 npm run pw:eslint
 ```
 
+### Lint-staged - [documentation](https://github.com/okonet/lint-staged)
+
+Lint-staged runs a set of predefined actions only on files that have been changed and staged in Git before a commit. This ensures that only the changes you're about to commit are checked and processed by the linters and formatters, helping to keep the codebase clean and consistent.
+
+We use it to run ESLint and Prettier automatically on staged files (see the `lint-staged` section in `package.json`).
+
 ### Prettier - [documentation](https://prettier.io/docs/en/options.html)
 
 Prettier is a code formatter tool. You can change its configuration in the `.prettierrc` file.
