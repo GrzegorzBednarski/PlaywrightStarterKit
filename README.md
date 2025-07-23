@@ -41,7 +41,31 @@ npm run pw:run:functional
 
 - [Playwright Documentation](https://playwright.dev/docs/intro)
 
-## TypeScript
+## Configuration
+
+### ESLint - [documentation](https://eslint.org/docs/user-guide/configuring/rules)
+
+ESLint is used for static code analysis and enforcing code quality. You can change its configuration in the `eslint.config.js` file.
+
+To manually run ESLint and automatically fix issues, use:
+
+```sh
+npm run pw:eslint
+```
+
+### Prettier - [documentation](https://prettier.io/docs/en/options.html)
+
+Prettier is a code formatter tool. You can change its configuration in the `.prettierrc` file.
+
+To manually format all `.js` and `.ts` files, run:
+
+```sh
+npm run pw:prettier
+```
+
+You can adjust these settings in `.prettierrc` to fit your team's preferences.
+
+### TypeScript
 
 This project uses TypeScript for writing tests and configuration files. TypeScript provides static typing and improved code quality.
 
@@ -52,31 +76,3 @@ All test files should use the `.ts` extension (e.g., `sample-functional.spec.ts`
 For more information about TypeScript, see:
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 - [Playwright & TypeScript](https://playwright.dev/docs/test-typescript)
-
-## Prettier - [documentation](https://prettier.io/docs/en/options.html)
-
-Prettier is a code formatter tool. You can change its configuration in the `.prettierrc` file.
-
-Below is a sample Prettier configuration. You can copy and adjust it for use in other projects:
-
-```json
-{
-  "arrowParens": "avoid",
-  "bracketSpacing": true,
-  "endOfLine": "auto",
-  "printWidth": 100,
-  "semi": true,
-  "singleQuote": true,
-  "tabWidth": 2,
-  "trailingComma": "es5",
-  "useTabs": false
-}
-```
-
-To manually format all `.js` and `.ts` files, run:
-
-```sh
-npm run pw:prettier
-```
-
-You can adjust these settings in `.prettierrc` to fit your team's preferences.
