@@ -1,0 +1,10 @@
+# IDE #
+.idea/
+.vscode/
+*.iml
+
+# Log files #
+*.log
+
+# NPM #
+node_modules/
