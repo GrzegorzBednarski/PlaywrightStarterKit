@@ -52,3 +52,31 @@ All test files should use the `.ts` extension (e.g., `sample-functional.spec.ts`
 For more information about TypeScript, see:
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 - [Playwright & TypeScript](https://playwright.dev/docs/test-typescript)
+
+## Prettier - [documentation](https://prettier.io/docs/en/options.html)
+
+Prettier is a code formatter tool. You can change its configuration in the `.prettierrc` file.
+
+Below is a sample Prettier configuration. You can copy and adjust it for use in other projects:
+
+```json
+{
+  "arrowParens": "avoid",
+  "bracketSpacing": true,
+  "endOfLine": "auto",
+  "printWidth": 100,
+  "semi": true,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "useTabs": false
+}
+```
+
+To manually format all `.js` and `.ts` files, run:
+
+```sh
+npm run pw:prettier
+```
+
+You can adjust these settings in `.prettierrc` to fit your team's preferences.

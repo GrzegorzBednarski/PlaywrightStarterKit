@@ -1,9 +1,11 @@
 {
   "devDependencies": {
     "@playwright/test": "^1.54.1",
+    "prettier": "^3.6.2",
     "typescript": "^5.8.3"
   },
   "scripts": {
+    "pw:prettier": "npx prettier --write '**/*.{js,ts}'",
     "pw:run:functional": "npx playwright test tests/functional"
   }
 }
