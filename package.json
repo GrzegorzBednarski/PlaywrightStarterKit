@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "@playwright/test": "^1.54.1"
+  },
+  "scripts": {
+    "pw:run:functional": "npx playwright test tests/functional"
+  }
+}
