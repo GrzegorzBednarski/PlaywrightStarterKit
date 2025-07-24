@@ -17,16 +17,53 @@ npx playwright install
 
 ## Running Tests
 
-To run all tests from the command line:
+To run tests, you must always specify the environment using the ENV variable. You can run tests in CLI or GUI mode by adding the `--ui` flag.
 
-```sh
-npx playwright test
+### Example scripts in `package.json`
+
+```json
+"scripts": {
+  "pw:run:example": "cross-env ENV=example npx playwright test",
+  "pw:open:example": "cross-env ENV=example npx playwright test --ui",
+  "pw:run:functional:example": "cross-env ENV=example npx playwright test tests/functional"
+}
 ```
 
-To run all tests in Playwright's interactive UI mode:
+To run tests, use one of the following commands:
 
 ```sh
-npx playwright test --ui
+npm run pw:run:example           # Run all tests in CLI mode
+npm run pw:open:example          # Run all tests in Playwright UI mode
+npm run pw:run:functional:example # Run only functional tests
+```
+
+### Running Tests for a Specific Environment
+
+To run tests for a specific environment, set the ENV variable (see [Environment Configuration](#environment-configuration)):
+
+```sh
+cross-env ENV=dev npx playwright test --ui
+```
+
+You can also add scripts to your `package.json` for convenience:
+
+```json
+"scripts": {
+  "pw:run:dev": "cross-env ENV=dev npx playwright test --ui",
+  "pw:run:stg": "cross-env ENV=stg npx playwright test --ui"
+}
+```
+
+Then run:
+
+```sh
+npm run pw:run:dev
+```
+
+or
+
+```sh
+npm run pw:run:stg
 ```
 
 ### Running Functional Tests
@@ -36,6 +73,45 @@ To run only the functional tests located in the tests/functional folder:
 ```sh
 npm run pw:run:functional
 ```
+
+## Environment Configuration
+
+PlaywrightStarterKit supports environment-specific configuration files for flexible test setups. All environment configs are stored in the `env/` directory and should follow the naming convention `.env.json` (e.g., `.dev.json`, `.stg.json`).
+
+- **Do not commit sensitive environment files to the repository.**
+- Only the `.example.json` file is tracked in Git and serves as a template for new environments.
+
+### How to use environment configs
+
+1. **Create your environment file:**
+   - Copy `env/.example.json` to a new file, e.g., `env/.dev.json` or `env/.stg.json`.
+   - Fill in the values for your environment (baseURL, users, etc.).
+
+2. **Run tests with the desired environment:**
+   - See [Running Tests for a Specific Environment](#running-tests-for-a-specific-environment) for instructions on how to run tests with a selected environment.
+   - If you do not set the `ENV` variable or the file does not exist, Playwright will throw an error and point you to this section.
+
+3. **Config structure:**
+   - Each environment file should contain all necessary config values for your tests, e.g.:
+     ```json
+     {
+       "baseURL": "https://your-env-url.com",
+       "timeout": 8000,
+       "use": {
+         "users": {
+           "admin": { "username": "...", "password": "..." },
+           "customUser": { "username": "...", "password": "..." }
+         }
+       }
+     }
+     ```
+
+4. **Best practices:**
+   - Never commit real credentials or secrets.
+   - Use `.example.json` as a template for new environments.
+   - Document any custom config values in your team wiki or README.
+
+For more details on accessing config values in tests, see the [Utilities](#utilities) section.
 
 ## Documentation
 
@@ -101,3 +177,26 @@ All test files should use the `.ts` extension (e.g., `sample-functional.spec.ts`
 For more information about TypeScript, see:
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 - [Playwright & TypeScript](https://playwright.dev/docs/test-typescript)
+
+## Utilities
+
+### readConfig - Helper for reading config values
+
+The `readConfig` function (located in `utils/utils.ts`) allows you to easily access any nested value from your Playwright config using a dot-separated path string.
+
+**Example usage:**
+```ts
+import { readConfig } from './utils/utils';
+
+const baseURL = readConfig('baseURL', testInfo);
+const adminUsername = readConfig('users.admin.username', testInfo);
+```
+
+**Parameters:**
+- `path` – Dot-separated path to the property, e.g. `'baseURL'`, `'users.admin.username'`
+- `testInfo` – The testInfo object provided by Playwright (available inside each test)
+
+**Returns:**
+- The value from config or `undefined` if not found
+
+See the JSDoc in `utils/utils.ts` for more details.

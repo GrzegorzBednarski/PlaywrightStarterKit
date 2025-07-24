@@ -1,8 +1,10 @@
 {
   "devDependencies": {
     "@playwright/test": "^1.54.1",
+    "@types/node": "^24.1.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
+    "cross-env": "^7.0.3",
     "eslint": "^9.31.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
@@ -18,7 +20,9 @@
     "prepare": "husky install",
     "pw:eslint": "npx eslint . --ext .ts,.js --fix",
     "pw:prettier": "npx prettier --write '**/*.{js,ts}'",
-    "pw:run:functional": "npx playwright test tests/functional"
+    "pw:run:functional": "npx playwright test tests/functional",
+    "pw:open:example": "cross-env ENV=example npx playwright test --ui",
+    "pw:run:example": "cross-env ENV=example npx playwright test"
   },
   "lint-staged": {
     "**/*.{js,ts}": [

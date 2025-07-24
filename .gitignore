@@ -1,10 +1,15 @@
-# IDE #
+# IDE files
 .idea/
 .vscode/
 *.iml
 
-# Log files #
+# Log files
 *.log
 
-# NPM #
+# NPM dependencies
 node_modules/
+
+# Environment configs (ignore all except example)
+# All environment files are ignored except .example.json, which serves as a template for new configs
+env/*
+!env/.example.json

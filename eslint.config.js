@@ -38,7 +38,7 @@ module.exports = [
       '@typescript-eslint/no-unused-expressions': 'error',
       'import/no-extraneous-dependencies': 'error',
       'no-only-tests/no-only-tests': 'error',
-      'prettier/prettier': 'error',
+      'prettier/prettier': ['warn'],
     },
   },
 ];
