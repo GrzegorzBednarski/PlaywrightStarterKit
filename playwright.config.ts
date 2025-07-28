@@ -21,6 +21,9 @@ if (fs.existsSync(envPath)) {
 
 const baseConfig = {
   timeout: 5000,
+  use: {
+    baseURL: '',
+  },
 };
 
 const mergedConfig = {
