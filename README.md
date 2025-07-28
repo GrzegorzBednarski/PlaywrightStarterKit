@@ -119,6 +119,22 @@ For more details on accessing config values in tests, see the [Utilities](#utili
 
 ## Configuration
 
+### Main config - [documentation](https://playwright.dev/docs/test-configuration)
+General configuration is set in the `playwright.config.ts` file. This file contains global settings such as timeouts, parallelism, baseURL, and other options that apply to all tests by default.
+
+### Overwriting config values - [documentation](https://playwright.dev/docs/test-configuration#overriding-configuration)
+You can overwrite specific configuration parameters by passing them via the command line interface (CLI) or by using environment-specific config files. This allows you to change settings for a single test run without modifying the main configuration file.
+
+For example, you can set the environment using the `ENV` variable to load a specific config file for development, staging, or production (see the [Environment Configuration](#environment-configuration) section for more details). This is useful for managing settings that vary between different environments.
+
+You can also override some Playwright options directly in the CLI, e.g.:
+
+```sh
+npx playwright test --grep "@smoke" --workers=2
+```
+
+This flexibility allows you to tailor test runs to your needs without changing the main config file.
+
 ### ESLint - [documentation](https://eslint.org/docs/user-guide/configuring/rules)
 
 ESLint is used for static code analysis and enforcing code quality. You can change its configuration in the `eslint.config.js` file.

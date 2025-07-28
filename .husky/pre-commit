@@ -1,6 +1,4 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 # === Husky pre-commit hook for lint-staged in (mono)repo ===
 # This script runs lint-staged in each defined package directory.
 # Add more package paths to the 'packages' array as needed.
@@ -26,4 +24,3 @@ for package in "${packages[@]}"; do
 done
 
 # === End of pre-commit hook ===
-
