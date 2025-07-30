@@ -217,6 +217,8 @@ const adminUsername = readConfig('users.admin.username', testInfo);
 
 See the JSDoc in `utils/utils.ts` for more details.
 
+## Usage
+
 ### iFrames
 
 In Playwright, you can interact with elements inside iframes using the `frameLocator` API. This allows you to easily locate and interact with elements within nested browsing contexts.
@@ -238,3 +240,55 @@ await expect(frame.locator('button[type="submit"]')).toBeVisible();
 ```
 
 For more details, see the [Playwright documentation on frames](https://playwright.dev/docs/frames).
+
+### Paths
+
+We can store all needed paths to pages that we will use during our tests in the `data/paths.ts` file.
+
+```ts
+export const PAGES = {
+  HOMEPAGE: '/',
+  ABOUT: '/about-us',
+};
+```
+
+Then use it in your test-spec file, for example:
+
+```ts
+import { PAGES } from '../../data/paths';
+// ...
+await page.goto(PAGES.HOMEPAGE);
+// ...
+```
+
+This approach helps keep your test code clean and makes it easy to update paths in one place if they change.
+
+### Selectors
+
+You can store all selectors used in your tests in the `data/selectors.ts` file. This helps keep your test code clean and maintainable by centralizing selector management.
+
+Example structure:
+
+```ts
+export const COOKIE_PROMPT = {
+  ACCEPT_ALL_COOKIES_BUTTON: '#onetrust-accept-btn-handler',
+  COOKIE_BANNER: '#onetrust-banner-sdk',
+};
+
+export const NAVIGATION = {
+  VML_LOGO: 'a[data-action="Header Logo"].logo',
+};
+```
+
+Then use only the sections you need in your test-spec file:
+
+```ts
+import { COOKIE_PROMPT, NAVIGATION } from '../../data/selectors';
+
+// ...
+await expect(page.locator(NAVIGATION.VML_LOGO)).toBeVisible();
+await expect(page.locator(COOKIE_PROMPT.COOKIE_BANNER)).toBeVisible();
+// ...
+```
+
+This approach makes it easy to update selectors in one place if they change, and keeps your test files focused on logic, not selectors.
