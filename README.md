@@ -39,31 +39,26 @@ npm run pw:run:functional:example # Run only functional tests
 
 ### Running Tests for a Specific Environment
 
-To run tests for a specific environment, set the ENV variable (see [Environment Configuration](#environment-configuration)):
+To run tests for a specific environment, set the ENV variable and specify the project name (see [Environment Configuration](#environment-configuration)):
 
 ```sh
-cross-env ENV=dev npx playwright test --ui
+cross-env ENV=staging npx playwright test --project=STAGING --ui
 ```
 
 You can also add scripts to your `package.json` for convenience:
 
 ```json
 "scripts": {
-  "pw:run:dev": "cross-env ENV=dev npx playwright test --ui",
-  "pw:run:stg": "cross-env ENV=stg npx playwright test --ui"
+  "pw:run:staging": "cross-env ENV=staging npx playwright test --project=STAGING",
+  "pw:open:staging": "cross-env ENV=staging npx playwright test --ui --project=STAGING"
 }
 ```
 
 Then run:
 
 ```sh
-npm run pw:run:dev
-```
-
-or
-
-```sh
-npm run pw:run:stg
+npm run pw:run:staging
+npm run pw:open:staging
 ```
 
 ### Running Functional Tests
@@ -76,42 +71,103 @@ npm run pw:run:functional
 
 ## Environment Configuration
 
-PlaywrightStarterKit supports environment-specific configuration files for flexible test setups. All environment configs are stored in the `env/` directory and should follow the naming convention `.env.json` (e.g., `.dev.json`, `.stg.json`).
+PlaywrightStarterKit uses two mechanisms for environment management:
 
-- **Do not commit sensitive environment files to the repository.**
-- Only the `.example.json` file is tracked in Git and serves as a template for new environments.
+1. **Project-based configuration in Playwright config**
+   - Non-secret values (e.g. baseURL, timeouts, browser settings) are set in `playwright.config.ts` using the `projects` array.
+   - Each project can have its own name and config values. Example:
+     ```ts
+     export default defineConfig({
+       projects: [
+         {
+           name: 'EXAMPLE',
+           timeout: 10000,
+           use: {
+             baseURL: 'https://www.vml.com',
+           },
+         },
+         {
+           name: 'STAGING',
+           timeout: 12000,
+           use: {
+             baseURL: 'https://staging.vml.com',
+           },
+         },
+         // Add more projects here
+       ],
+     });
+     ```
+   - This allows you to run tests for different environments by specifying the project name.
+   - You can access config values (like timeout, baseURL) in your tests via the `testInfo.project` object or via Playwright's test context:
+     ```ts
+     test('should use config values', async ({ page }, testInfo) => {
+       console.log('Project name:', testInfo.project.name);
+       console.log('Project timeout:', testInfo.project.timeout);
+       console.log('Project baseURL:', testInfo.project.use.baseURL);
+     });
+     ```
+   - See [How to use config values in tests](#how-to-use-config-values-in-tests) for more details.
 
-### How to use environment configs
+2. **Secrets and environment variables with dotenv**
+   - Secret values (e.g. API tokens, credentials) are stored in `.env` files inside the `env/` directory (e.g. `env/.env.example`).
+   - The `config/dotenv.ts` file loads the correct `.env` file based on the `ENV` variable (e.g. `ENV=example` loads `env/.env.example`).
+   - If the file for the selected environment does not exist, the fallback is set to `env/.env.example` (see `config/dotenv.ts`). You can change the fallback by editing the `fallbackName` variable in that file.
+   - All files in `env/` are ignored by git except for `env/.env.example`, which serves as an example for your environment variables.
+   - Example `.env.example`:
+     ```dotenv
+     ENV=example
+     PERCY_TOKEN=xyz
+     ADMIN_USERNAME=admin@example.com
+     ADMIN_PASSWORD=super-secret
+     ```
+   - Dotenv is loaded automatically in your config, so you can use `process.env` in your tests and config files.
 
-1. **Create your environment file:**
-   - Copy `env/.example.json` to a new file, e.g., `env/.dev.json` or `env/.stg.json`.
-   - Fill in the values for your environment (baseURL, users, etc.).
+### How dotenv works in this project
+- The config loads the correct `.env` file based on the `ENV` variable (e.g. `ENV=dev` loads `env/.env.dev`).
+- If the file does not exist, it falls back to `env/.env.example` (see `config/dotenv.ts`).
+- You can change the fallback environment by editing the `fallbackName` variable in `config/dotenv.ts`.
+- All environment variables from the file are available via `process.env` in your tests and config.
+- See [How to use environment variables in tests](#how-to-use-environment-variables-in-tests) for usage examples.
 
-2. **Run tests with the desired environment:**
-   - See [Running Tests for a Specific Environment](#running-tests-for-a-specific-environment) for instructions on how to run tests with a selected environment.
-   - If you do not set the `ENV` variable or the file does not exist, Playwright will throw an error and point you to this section.
-
-3. **Config structure:**
-   - Each environment file should contain all necessary config values for your tests, e.g.:
+### How to add a new environment
+1. **Add a new project to `playwright.config.ts`**
+   - Copy the example project and adjust its name and config values (e.g. add `STAGING` with its own timeout and baseURL).
+2. **Add a new secrets file to `env/`**
+   - Create a new file, e.g. `env/.env.staging`, and add your secret values.
+   - Do not commit this file to git (it is ignored by default).
+3. **Run tests for the new environment**
+   - Use the ENV variable and the project name in your npm script or CLI command:
+     ```sh
+     cross-env ENV=staging npx playwright test --project=STAGING
+     ```
+   - You can add a script to `package.json` for convenience:
      ```json
-     {
-       "baseURL": "https://your-env-url.com",
-       "timeout": 8000,
-       "use": {
-         "users": {
-           "admin": { "username": "...", "password": "..." },
-           "customUser": { "username": "...", "password": "..." }
-         }
-       }
-     }
+     "pw:run:staging": "cross-env ENV=staging npx playwright test --project=STAGING"
      ```
 
-4. **Best practices:**
-   - Never commit real credentials or secrets.
-   - Use `.example.json` as a template for new environments.
-   - Document any custom config values in your team wiki or README.
+### How to use environment variables in tests
+- You can access any value from your `.env` file using `process.env`:
+  ```ts
+  console.log(process.env.ADMIN_USERNAME);
+  console.log(process.env.PERCY_TOKEN);
+  ```
+- See the test [`should display environment variables and config`](#usage) in `tests/functional/sample-functional.spec.ts` for a usage example.
 
-For more details on accessing config values in tests, see the [Utilities](#utilities) section.
+### How to use config values in tests
+- You can access config values (like timeout, baseURL, or custom values) from the current project using the `testInfo.project` object or Playwright's test context:
+  ```ts
+  test('should use config values', async ({ page }, testInfo) => {
+    console.log('Project name:', testInfo.project.name);
+    console.log('Project timeout:', testInfo.project.timeout);
+    console.log('Project baseURL:', testInfo.project.use.baseURL);
+  });
+  ```
+- This is useful for debugging or for writing tests that depend on project-specific configuration.
+
+### Best practices
+- Never commit real secrets or credentials to the repository.
+- Use `env/.env.example` as a template for new environments and document required variables.
+- Store non-secret config in `playwright.config.ts` projects, and secrets in `env/.env.*` files.
 
 ## Documentation
 
@@ -193,29 +249,6 @@ All test files should use the `.ts` extension (e.g., `sample-functional.spec.ts`
 For more information about TypeScript, see:
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 - [Playwright & TypeScript](https://playwright.dev/docs/test-typescript)
-
-## Utilities
-
-### readConfig - Helper for reading config values
-
-The `readConfig` function (located in `utils/utils.ts`) allows you to easily access any nested value from your Playwright config using a dot-separated path string.
-
-**Example usage:**
-```ts
-import { readConfig } from './utils/utils';
-
-const baseURL = readConfig('baseURL', testInfo);
-const adminUsername = readConfig('users.admin.username', testInfo);
-```
-
-**Parameters:**
-- `path` – Dot-separated path to the property, e.g. `'baseURL'`, `'users.admin.username'`
-- `testInfo` – The testInfo object provided by Playwright (available inside each test)
-
-**Returns:**
-- The value from config or `undefined` if not found
-
-See the JSDoc in `utils/utils.ts` for more details.
 
 ## Usage
 

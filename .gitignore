@@ -10,6 +10,7 @@
 node_modules/
 
 # Environment configs (ignore all except example)
-# All environment files are ignored except .example.json, which serves as a template for new configs
+# All environment files are ignored except env/.env.example,
+# which is an example of environment variables for a specific environment
 env/*
-!env/.example.json
+!env/.env.example
