@@ -1,0 +1,8 @@
+{
+  "0": "consent",
+  "1": "update",
+  "2": {
+    "ad_storage": "%VAL1%",
+    "analytics_storage": "%VAL2%"
+  }
+}
