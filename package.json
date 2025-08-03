@@ -24,7 +24,8 @@
     "pw:report": "npx playwright show-report build/html-report",
     "pw:eslint": "npx eslint . --ext .ts,.js --fix",
     "pw:prettier": "npx prettier --write '**/*.{js,ts}'",
-    "pw:run:functional": "npx playwright test tests/functional",
+    "pw:run:analytics:example": "cross-env ENV=example npx playwright test tests/analytics --project=EXAMPLE",
+    "pw:run:functional:example": "cross-env ENV=example npx playwright test tests/functional --project=EXAMPLE",
     "pw:open:example": "cross-env ENV=example npx playwright test --ui --project=EXAMPLE",
     "pw:run:example": "cross-env ENV=example npx playwright test --project=EXAMPLE"
   },

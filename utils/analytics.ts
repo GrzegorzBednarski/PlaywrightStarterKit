@@ -174,27 +174,33 @@ export async function initAnalyticsSpy(page: Page) {
  * @param {Page} page - The Playwright page object.
  * @param {string} fixtureName - Name of the fixture file (without extension).
  * @param {Record<string, string | number>} [replacements] - Optional replacements for placeholders in the fixture.
+ * @param {number} [timeoutMs=10000] - Optional timeout in milliseconds (default is 10 seconds).
+ * @param {number} [pollIntervalMs=250] - Optional polling interval in milliseconds (default is 250ms).
  * @returns {Promise<void>}
  * @throws Will throw an error if no matching event is found.
  */
 export async function checkAnalyticsEvent(
   page: Page,
   fixtureName: string,
-  replacements?: Record<string, string | number>
+  replacements?: Record<string, string | number>,
+  timeoutMs: number = 10000,
+  pollIntervalMs: number = 250
 ) {
   const expectedEvent = loadFixtureWithReplacements(`analytics/${fixtureName}`, replacements);
+  const start = Date.now();
+
+  while (Date.now() - start < timeoutMs) {
+    const events = await page.evaluate(() => window.__analyticsEvents);
+    if (events && events.some(event => deepMatch(event, expectedEvent))) {
+      return;
+    }
+    await page.waitForTimeout(pollIntervalMs);
+  }
+
+  // Final check and error reporting
   const events = await page.evaluate(() => window.__analyticsEvents);
-
-  if (!events || events.length === 0) {
-    logEventsOnFailure(events, expectedEvent);
-    throw new Error('No analytics events captured');
-  }
-
-  const matchFound = events.some(event => deepMatch(event, expectedEvent));
-  if (!matchFound) {
-    logEventsOnFailure(events, expectedEvent);
-    throw new Error(
-      `Expected analytics event not found:\n${JSON.stringify(expectedEvent, null, 2)}`
-    );
-  }
+  logEventsOnFailure(events, expectedEvent);
+  throw new Error(
+    `Expected analytics event not found within ${timeoutMs}ms:\n${JSON.stringify(expectedEvent, null, 2)}`
+  );
 }

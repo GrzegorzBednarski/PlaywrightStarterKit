@@ -23,18 +23,20 @@ To run tests, you must always specify the environment using the ENV variable. Yo
 
 ```json
 "scripts": {
-  "pw:run:example": "cross-env ENV=example npx playwright test",
-  "pw:open:example": "cross-env ENV=example npx playwright test --ui",
-  "pw:run:functional:example": "cross-env ENV=example npx playwright test tests/functional"
+  "pw:run:example": "cross-env ENV=example npx playwright test --project=EXAMPLE",
+  "pw:open:example": "cross-env ENV=example npx playwright test --ui --project=EXAMPLE",
+  "pw:run:functional:example": "cross-env ENV=example npx playwright test tests/functional --project=EXAMPLE",
+  "pw:run:analytics:example": "cross-env ENV=example npx playwright test tests/analytics --project=EXAMPLE"
 }
 ```
 
 To run tests, use one of the following commands:
 
 ```sh
-npm run pw:run:example           # Run all tests in CLI mode
-npm run pw:open:example          # Run all tests in Playwright UI mode
-npm run pw:run:functional:example # Run only functional tests
+npm run pw:run:example               # Run all tests in CLI mode
+npm run pw:open:example              # Run all tests in Playwright UI mode
+npm run pw:run:functional:example    # Run only functional tests
+npm run pw:run:analytics:example     # Run only analytics tests
 ```
 
 ### Running Tests for a Specific Environment
@@ -61,15 +63,25 @@ npm run pw:run:staging
 npm run pw:open:staging
 ```
 
+### Running Analytics Tests
+
+To run only the analytics tests located in the tests/analytics folder:
+
+```sh
+npm run pw:run:analytics:example
+```
+
 ### Running Functional Tests
 
 To run only the functional tests located in the tests/functional folder:
 
 ```sh
-npm run pw:run:functional
+npm run pw:run:functional:example
 ```
 
 ## Test Reports
+
+The `build` folder is automatically cleaned before each test run by the global setup script (see `global-setup.ts`). This ensures that reports and artifacts are always generated in a fresh directory, regardless of the number of workers or CI/CD environment.
 
 All reporter output files are configured to be saved in the `build` folder, as defined in `playwright.config.ts`. This folder is used for CI/CD integration and is ignored by git.
 
@@ -88,7 +100,9 @@ reporter: [
 ]
 ```
 
-To view the report, use the provided script:
+This project is configured to generate all three report types simultaneously: HTML for visual inspection, JUnit for CI/CD integration, and JSON for custom processing.
+
+To view the HTML report, use the provided script:
 
 ```sh
 npm run pw:report
@@ -217,6 +231,35 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 
 ### Main config - [documentation](https://playwright.dev/docs/test-configuration)
 General configuration is set in the `playwright.config.ts` file. This file contains global settings such as timeouts, parallelism, baseURL, and other options that apply to all tests by default.
+
+**Key configuration options and their purposes:**
+- **Global Setup**: Use `globalSetup` to run setup tasks before all tests (e.g., cleaning directories, preparing test data)
+- **Parallel Execution**: Enable `fullyParallel: true` to run tests simultaneously for faster execution
+- **Retries**: Set `retries` to automatically retry failed tests and reduce flakiness
+- **Artifacts**: Configure `screenshot`, `video`, and `trace` options to capture debugging information when needed
+- **Workers**: Control `workers` count to optimize performance based on environment (fewer in CI, more locally)
+- **Timeouts**: Set global `timeout` for tests and `expect.timeout` for assertions
+- **Output Directory**: Use `outputDir` to specify where test artifacts are stored
+
+**Example configuration structure:**
+```ts
+export default defineConfig({
+  globalSetup: require.resolve('./global-setup'),
+  testDir: './tests',
+  retries: 1,
+  fullyParallel: true,
+  timeout: 8000,
+  expect: { timeout: 5000 },
+  outputDir: `${buildDir}/artifacts`,
+  workers: process.env.CI ? 2 : 4,
+  use: {
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    trace: 'on-first-retry',
+  },
+  // ... reporter and project configurations
+});
+```
 
 ### Overwriting config values - [documentation](https://playwright.dev/docs/test-configuration#overriding-configuration)
 You can overwrite specific configuration parameters by passing them via the command line interface (CLI) or by using environment-specific config files. This allows you to change settings for a single test run without modifying the main configuration file.
