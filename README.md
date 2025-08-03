@@ -1,4 +1,5 @@
 # PlaywrightStarterKit
+
 Playwright framework with pre-configured plugins
 
 ## Prerequisites
@@ -25,8 +26,9 @@ To run tests, you must always specify the environment using the ENV variable. Yo
 "scripts": {
   "pw:run:example": "cross-env ENV=example npx playwright test --project=EXAMPLE",
   "pw:open:example": "cross-env ENV=example npx playwright test --ui --project=EXAMPLE",
+  "pw:run:accessibility:example": "cross-env ENV=example npx playwright test tests/accessibility --project=EXAMPLE"
+  "pw:run:analytics:example": "cross-env ENV=example npx playwright test tests/analytics --project=EXAMPLE",
   "pw:run:functional:example": "cross-env ENV=example npx playwright test tests/functional --project=EXAMPLE",
-  "pw:run:analytics:example": "cross-env ENV=example npx playwright test tests/analytics --project=EXAMPLE"
 }
 ```
 
@@ -35,8 +37,9 @@ To run tests, use one of the following commands:
 ```sh
 npm run pw:run:example               # Run all tests in CLI mode
 npm run pw:open:example              # Run all tests in Playwright UI mode
-npm run pw:run:functional:example    # Run only functional tests
+npm run pw:run:accessibility:example # Run only accessibility tests
 npm run pw:run:analytics:example     # Run only analytics tests
+npm run pw:run:functional:example    # Run only functional tests
 ```
 
 ### Running Tests for a Specific Environment
@@ -71,6 +74,16 @@ To run only the analytics tests located in the tests/analytics folder:
 npm run pw:run:analytics:example
 ```
 
+### Running Accessibility Tests
+
+To run only the accessibility tests located in the `tests/accessibility` folder:
+
+```sh
+npm run pw:run:accessibility:example
+```
+
+For more details on how to configure accessibility tests, see the [Accessibility Testing](#accessibility-testing) section.
+
 ### Running Functional Tests
 
 To run only the functional tests located in the tests/functional folder:
@@ -94,10 +107,9 @@ Playwright includes a built-in HTML reporter that generates a visual report afte
 **Note:** The HTML reporter is already configured in this project and will be used automatically after running tests. You do not need to specify `--reporter=html` manually.
 
 **Example configuration:**
+
 ```ts
-reporter: [
-  ['html', { outputFolder: 'build/html-report', open: 'never' }],
-]
+reporter: [['html', { outputFolder: 'build/html-report', open: 'never' }]];
 ```
 
 This project is configured to generate all three report types simultaneously: HTML for visual inspection, JUnit for CI/CD integration, and JSON for custom processing.
@@ -111,14 +123,16 @@ npm run pw:report
 This will open the generated file in `build/html-report/index.html` after your test run.
 
 ### JSON / JUnit Reporters
+
 For CI/CD integration or custom dashboards, you can use other reporters like `json` or `junit`.
 
 **Example configuration:**
+
 ```ts
 reporter: [
   ['json', { outputFile: 'build/json/results.json' }],
   ['junit', { outputFile: 'build/junit/results.xml' }],
-]
+];
 ```
 
 These files can be parsed by CI tools like Jenkins, GitHub Actions, or Azure DevOps.
@@ -177,6 +191,7 @@ PlaywrightStarterKit uses two mechanisms for environment management:
    - Dotenv is loaded automatically in your config, so you can use `process.env` in your tests and config files.
 
 ### How dotenv works in this project
+
 - The config loads the correct `.env` file based on the `ENV` variable (e.g. `ENV=dev` loads `env/.env.dev`).
 - If the file does not exist, it falls back to `env/.env.example` (see `config/dotenv.ts`).
 - You can change the fallback environment by editing the `fallbackName` variable in `config/dotenv.ts`.
@@ -184,6 +199,7 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 - See [How to use environment variables in tests](#how-to-use-environment-variables-in-tests) for usage examples.
 
 ### How to add a new environment
+
 1. **Add a new project to `playwright.config.ts`**
    - Copy the example project and adjust its name and config values (e.g. add `STAGING` with its own timeout and baseURL).
 2. **Add a new secrets file to `env/`**
@@ -200,6 +216,7 @@ PlaywrightStarterKit uses two mechanisms for environment management:
      ```
 
 ### How to use environment variables in tests
+
 - You can access any value from your `.env` file using `process.env`:
   ```ts
   console.log(process.env.ADMIN_USERNAME);
@@ -208,6 +225,7 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 - See the test [`should display environment variables and config`](#usage) in `tests/functional/sample-functional.spec.ts` for a usage example.
 
 ### How to use config values in tests
+
 - You can access config values (like timeout, baseURL, or custom values) from the current project using the `testInfo.project` object or Playwright's test context:
   ```ts
   test('should use config values', async ({ page }, testInfo) => {
@@ -219,6 +237,7 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 - This is useful for debugging or for writing tests that depend on project-specific configuration.
 
 ### Best practices
+
 - Never commit real secrets or credentials to the repository.
 - Use `env/.env.example` as a template for new environments and document required variables.
 - Store non-secret config in `playwright.config.ts` projects, and secrets in `env/.env.*` files.
@@ -230,9 +249,11 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 ## Configuration
 
 ### Main config - [documentation](https://playwright.dev/docs/test-configuration)
+
 General configuration is set in the `playwright.config.ts` file. This file contains global settings such as timeouts, parallelism, baseURL, and other options that apply to all tests by default.
 
 **Key configuration options and their purposes:**
+
 - **Global Setup**: Use `globalSetup` to run setup tasks before all tests (e.g., cleaning directories, preparing test data)
 - **Parallel Execution**: Enable `fullyParallel: true` to run tests simultaneously for faster execution
 - **Retries**: Set `retries` to automatically retry failed tests and reduce flakiness
@@ -242,6 +263,7 @@ General configuration is set in the `playwright.config.ts` file. This file conta
 - **Output Directory**: Use `outputDir` to specify where test artifacts are stored
 
 **Example configuration structure:**
+
 ```ts
 export default defineConfig({
   globalSetup: require.resolve('./global-setup'),
@@ -262,6 +284,7 @@ export default defineConfig({
 ```
 
 ### Overwriting config values - [documentation](https://playwright.dev/docs/test-configuration#overriding-configuration)
+
 You can overwrite specific configuration parameters by passing them via the command line interface (CLI) or by using environment-specific config files. This allows you to change settings for a single test run without modifying the main configuration file.
 
 For example, you can set the environment using the `ENV` variable to load a specific config file for development, staging, or production (see the [Environment Configuration](#environment-configuration) section for more details). This is useful for managing settings that vary between different environments.
@@ -274,11 +297,48 @@ npx playwright test --grep "@smoke" --workers=2
 
 This flexibility allows you to tailor test runs to your needs without changing the main config file.
 
+### Accessibility Configuration
+
+Configuration for accessibility testing is defined in `config/accessibilityConfig.ts`. This file allows you to set global preferences for WCAG compliance levels, rules to ignore, and report settings.
+
+**Available tags:**
+- `'wcag2a'`       → WCAG 2.0 Level A
+- `'wcag2aa'`      → WCAG 2.0 Level AA
+- `'wcag21a'`      → WCAG 2.1 Level A
+- `'wcag21aa'`     → WCAG 2.1 Level AA
+- `'wcag22aa'`     → WCAG 2.2 Level AA
+- `'section508'`   → US Section 508 compliance
+- `'best-practice'`→ General accessibility best practices
+
+**Example configuration (`config/accessibilityConfig.ts`):**
+
+```ts
+const accessibilityConfig = {
+  tags: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
+  ignoredRules: {
+    'color-contrast': false,
+  },
+  reportConsole: {
+    impact: true,
+    id: true,
+    description: false,
+    help: true,
+    helpUrl: false,
+    nodes: true,
+  },
+  reportsOutputFolder: `${buildDir}/accessibility-reports`,
+};
+```
+
+For more details on how to use this in your tests, see [Accessibility Usage](#accessibility).
+
 ### Analytics Configuration
+
 Configuration for analytics spying is defined in `config/analyticsConfig.ts`.
 This file controls how analytics events are captured and filtered during tests.
 
 **Example structure:**
+
 ```ts
 export const analyticsConfig = {
   source: 'dataLayer', // name of the global array used for analytics
@@ -326,7 +386,6 @@ This will run lint-staged in each specified package directory before every commi
 
 You can add more hooks or customize existing ones by editing or adding scripts in the `.husky/` directory.
 
-
 ### Lint-staged - [documentation](https://github.com/okonet/lint-staged)
 
 Lint-staged runs a set of predefined actions only on files that have been changed and staged in Git before a commit. This ensures that only the changes you're about to commit are checked and processed by the linters and formatters, helping to keep the codebase clean and consistent.
@@ -354,12 +413,55 @@ TypeScript configuration is located in the `tsconfig.json` file. You can adjust 
 All test files should use the `.ts` extension (e.g., `sample-functional.spec.ts`).
 
 For more information about TypeScript, see:
+
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 - [Playwright & TypeScript](https://playwright.dev/docs/test-typescript)
 
 ## Usage
 
+### Accessibility
+
+This project uses `axe-core` to run automated accessibility tests. The tests are designed to catch common accessibility issues and ensure compliance with WCAG standards. We provide a helper function `runAccessibilityScan` to simplify running these checks.
+
+**Example usage**
+
+```ts
+import { test } from '@playwright/test';
+import runAccessibilityScan from '../../utils/accessibility';
+
+test('Homepage accessibility', async ({ page }) => {
+  await page.goto('/');
+  await runAccessibilityScan(page);
+});
+```
+
+**Overriding Configuration in Tests**
+You can override the default configuration for a specific test by passing an options object to the `runAccessibilityScan` function.
+
+**Example (`tests/accessibility/accessibility.spec.ts`):**
+
+```ts
+test('Careers page accessibility', async ({ page }) => {
+  await page.goto('/careers');
+  await runAccessibilityScan(page, {
+    tags: ['best-practice'],
+    ignoredRules: {
+      'landmark-banner-is-top-level': true,
+    },
+  });
+});
+```
+
+**Reports**
+After running the tests, two reports are generated in the `build/accessibility-reports` folder:
+
+- `accessibility-report.json`: A detailed JSON file with all violations.
+- `accessibility-report.md`: A human-readable Markdown report summarizing the findings.
+
+For configuration details, see [Accessibility Configuration](#accessibility-configuration).
+
 ### Analytics
+
 We provide two helper functions to verify if analytics events are correctly pushed to the data layer.
 
 The first function, `initAnalyticsSpy`, injects a spy into the page and starts capturing analytics events. It should be called before any user interactions that trigger analytics.
@@ -367,6 +469,7 @@ The first function, `initAnalyticsSpy`, injects a spy into the page and starts c
 The second function, `checkAnalyticsEvent`, compares the captured events with the expected result defined in a fixture file.
 
 **Example usage**
+
 ```ts
 import { test } from '@playwright/test';
 import { initAnalyticsSpy, checkAnalyticsEvent } from './helpers/analytics';
@@ -383,6 +486,7 @@ In the example above, we first navigate to the page and initialize the analytics
 
 **Example fixture file**
 Located under `fixtures/analytics/clicks/logo.json`:
+
 ```json
 {
   "event": "pageEvent",
@@ -401,6 +505,7 @@ Located under `fixtures/analytics/clicks/logo.json`:
 If your expected analytics event contains dynamic values (e.g., URL or element name), you can use placeholders in the fixture file and pass replacements to `checkAnalyticsEvent`.
 
 **Example fixture file with placeholders:**
+
 ```json
 {
   "event": "pageEvent",
@@ -418,6 +523,7 @@ If your expected analytics event contains dynamic values (e.g., URL or element n
 ```
 
 **Example usage with replacements:**
+
 ```ts
 test('Check analytics after clicking dynamic link', async ({ page }) => {
   const link = page.locator('a.dynamicTitle');
@@ -432,7 +538,7 @@ test('Check analytics after clicking dynamic link', async ({ page }) => {
 ```
 
 In this example, we extract dynamic values from the page and pass them as replacements to match the expected analytics event.
-For configuration details, see [Analytics Confiduration](#analytics-configuration).
+For configuration details, see [Analytics Configuration](#analytics-configuration).
 
 ### iFrames
 

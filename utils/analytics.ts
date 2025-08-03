@@ -8,27 +8,12 @@ declare global {
   }
 }
 
-/**
- * Determines whether an analytics event should be included based on a filter key.
- *
- * @param {unknown} event - The analytics event to evaluate.
- * @param {string} filterKey - A string in the format 'key', 'value', or 'key:value'.
- * @returns {boolean} - True if the event matches the filter, false otherwise.
- */
 function shouldIncludeEvent(event: unknown, filterKey: string): boolean {
   if (typeof event !== 'object' || event === null) return false;
   const [key, value] = filterKey.includes(':') ? filterKey.split(':') : [filterKey, undefined];
   return containsKeyValue(event, key, value);
 }
 
-/**
- * Recursively checks whether an object contains a specific key-value pair.
- *
- * @param {unknown} obj - The object to search.
- * @param {string} key - The key to look for.
- * @param {string} [value] - Optional value to match.
- * @returns {boolean} - True if the key (and value, if provided) is found.
- */
 function containsKeyValue(obj: unknown, key: string, value?: string): boolean {
   if (obj === null) return false;
   if (typeof obj !== 'object') return key === String(obj) && value === undefined;
@@ -44,13 +29,6 @@ function containsKeyValue(obj: unknown, key: string, value?: string): boolean {
   return false;
 }
 
-/**
- * Performs a deep comparison between two objects or arrays.
- *
- * @param {unknown} actual - The actual event object.
- * @param {unknown} expected - The expected event structure.
- * @returns {boolean} - True if the actual matches the expected structure.
- */
 function deepMatch(actual: unknown, expected: unknown): boolean {
   if (Array.isArray(expected)) {
     if (!Array.isArray(actual) || actual.length !== expected.length) return false;
@@ -68,12 +46,6 @@ function deepMatch(actual: unknown, expected: unknown): boolean {
   );
 }
 
-/**
- * Logs analytics events to the console when a test fails or when debugging is enabled.
- *
- * @param {unknown[] | undefined} events - Captured analytics events.
- * @param {unknown} expected - The expected event structure.
- */
 function logEventsOnFailure(events: unknown[] | undefined, expected: unknown) {
   const debugAnalytics = analyticsConfig.debugAnalytics as 'always' | 'never' | 'ifFail';
   const { enableFiltering, filterKey } = analyticsConfig;
@@ -101,12 +73,6 @@ function logEventsOnFailure(events: unknown[] | undefined, expected: unknown) {
   console.log('[AnalyticsSpy] Expected event:\n', JSON.stringify(expected, null, 2));
 }
 
-/**
- * Injects a spy into the page to capture analytics events pushed to the data layer.
- *
- * @param {Page} page - The Playwright page object.
- * @returns {Promise<void>}
- */
 export async function initAnalyticsSpy(page: Page) {
   await page.addInitScript(
     config => {
@@ -168,17 +134,6 @@ export async function initAnalyticsSpy(page: Page) {
   );
 }
 
-/**
- * Verifies that a specific analytics event was captured and matches the expected structure.
- *
- * @param {Page} page - The Playwright page object.
- * @param {string} fixtureName - Name of the fixture file (without extension).
- * @param {Record<string, string | number>} [replacements] - Optional replacements for placeholders in the fixture.
- * @param {number} [timeoutMs=10000] - Optional timeout in milliseconds (default is 10 seconds).
- * @param {number} [pollIntervalMs=250] - Optional polling interval in milliseconds (default is 250ms).
- * @returns {Promise<void>}
- * @throws Will throw an error if no matching event is found.
- */
 export async function checkAnalyticsEvent(
   page: Page,
   fixtureName: string,
@@ -197,7 +152,6 @@ export async function checkAnalyticsEvent(
     await page.waitForTimeout(pollIntervalMs);
   }
 
-  // Final check and error reporting
   const events = await page.evaluate(() => window.__analyticsEvents);
   logEventsOnFailure(events, expectedEvent);
   throw new Error(
