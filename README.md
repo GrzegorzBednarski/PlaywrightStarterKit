@@ -69,6 +69,46 @@ To run only the functional tests located in the tests/functional folder:
 npm run pw:run:functional
 ```
 
+## Test Reports
+
+All reporter output files are configured to be saved in the `build` folder, as defined in `playwright.config.ts`. This folder is used for CI/CD integration and is ignored by git.
+
+PlaywrightStarterKit supports multiple reporting formats to help you analyze test results.
+
+### Built-in HTML Reporter
+
+Playwright includes a built-in HTML reporter that generates a visual report after test execution.
+
+**Note:** The HTML reporter is already configured in this project and will be used automatically after running tests. You do not need to specify `--reporter=html` manually.
+
+**Example configuration:**
+```ts
+reporter: [
+  ['html', { outputFolder: 'build/html-report', open: 'never' }],
+]
+```
+
+To view the report, use the provided script:
+
+```sh
+npm run pw:report
+```
+
+This will open the generated file in `build/html-report/index.html` after your test run.
+
+### JSON / JUnit Reporters
+For CI/CD integration or custom dashboards, you can use other reporters like `json` or `junit`.
+
+**Example configuration:**
+```ts
+reporter: [
+  ['json', { outputFile: 'build/json/results.json' }],
+  ['junit', { outputFile: 'build/junit/results.xml' }],
+]
+```
+
+These files can be parsed by CI tools like Jenkins, GitHub Actions, or Azure DevOps.
+
 ## Environment Configuration
 
 PlaywrightStarterKit uses two mechanisms for environment management:

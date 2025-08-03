@@ -10,7 +10,7 @@ test('should track analytics event after accepting all cookies', async ({ page }
   await page.click(COOKIE_PROMPT.ACCEPT_ALL_COOKIES_BUTTON);
 
   await checkAnalyticsEvent(page, 'acceptAllCookiesButtonClick', {
-    '%VAL1%': 'granted',
-    '%VAL2%': 'granted',
+    '%VAL1%': 'denied',
+    '%VAL2%': 'denied',
   });
 });

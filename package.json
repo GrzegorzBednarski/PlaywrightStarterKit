@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@playwright/test": "^1.54.1",
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^24.1.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
@@ -12,6 +13,7 @@
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-playwright": "^2.2.2",
     "eslint-plugin-prettier": "^5.5.3",
+    "fs-extra": "^11.3.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
@@ -19,6 +21,7 @@
   },
   "scripts": {
     "prepare": "husky",
+    "pw:report": "npx playwright show-report build/html-report",
     "pw:eslint": "npx eslint . --ext .ts,.js --fix",
     "pw:prettier": "npx prettier --write '**/*.{js,ts}'",
     "pw:run:functional": "npx playwright test tests/functional",

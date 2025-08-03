@@ -20,11 +20,11 @@ test('should be on the page with baseURL', async ({ page, baseURL }) => {
 });
 
 test('should display environment variables and config', async ({ baseURL }, testInfo) => {
-  console.log('Project name:', testInfo.project.name);
-  console.log('Project timeout:', testInfo.project.timeout);
-  console.log('ENV:', process.env.ENV);
-  console.log('PERCY_TOKEN:', process.env.PERCY_TOKEN);
-  console.log('ADMIN_USERNAME:', process.env.ADMIN_USERNAME);
-  console.log('ADMIN_PASSWORD:', process.env.ADMIN_PASSWORD);
-  console.log('baseURL:', baseURL);
+  // console.log('Project name:', testInfo.project.name);
+  // console.log('Project timeout:', testInfo.project.timeout);
+  // console.log('ENV:', process.env.ENV);
+  // console.log('PERCY_TOKEN:', process.env.PERCY_TOKEN);
+  // console.log('ADMIN_USERNAME:', process.env.ADMIN_USERNAME);
+  // console.log('ADMIN_PASSWORD:', process.env.ADMIN_PASSWORD);
+  // console.log('baseURL:', baseURL);
 });
