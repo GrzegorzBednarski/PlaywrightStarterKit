@@ -1,5 +1,5 @@
 import { defineConfig } from '@playwright/test';
-import './config/dotenv';
+import './config/dotenvConfig';
 import { buildDir } from './global-setup';
 
 export default defineConfig({

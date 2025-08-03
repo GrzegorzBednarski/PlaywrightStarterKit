@@ -178,8 +178,8 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 
 2. **Secrets and environment variables with dotenv**
    - Secret values (e.g. API tokens, credentials) are stored in `.env` files inside the `env/` directory (e.g. `env/.env.example`).
-   - The `config/dotenv.ts` file loads the correct `.env` file based on the `ENV` variable (e.g. `ENV=example` loads `env/.env.example`).
-   - If the file for the selected environment does not exist, the fallback is set to `env/.env.example` (see `config/dotenv.ts`). You can change the fallback by editing the `fallbackName` variable in that file.
+   - The `config/dotenvConfig.ts` file loads the correct `.env` file based on the `ENV` variable (e.g. `ENV=example` loads `env/.env.example`).
+   - If the file for the selected environment does not exist, the fallback is set to `env/.env.example` (see `config/dotenvConfig.ts`). You can change the fallback by editing the `fallbackName` variable in that file.
    - All files in `env/` are ignored by git except for `env/.env.example`, which serves as an example for your environment variables.
    - Example `.env.example`:
      ```dotenv
@@ -193,8 +193,8 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 ### How dotenv works in this project
 
 - The config loads the correct `.env` file based on the `ENV` variable (e.g. `ENV=dev` loads `env/.env.dev`).
-- If the file does not exist, it falls back to `env/.env.example` (see `config/dotenv.ts`).
-- You can change the fallback environment by editing the `fallbackName` variable in `config/dotenv.ts`.
+- If the file does not exist, it falls back to `env/.env.example` (see `config/dotenvConfig.ts`).
+- You can change the fallback environment by editing the `fallbackName` variable in `config/dotenvConfig.ts`.
 - All environment variables from the file are available via `process.env` in your tests and config.
 - See [How to use environment variables in tests](#how-to-use-environment-variables-in-tests) for usage examples.
 
