@@ -9,7 +9,7 @@ test('should track analytics event after accepting all cookies', async ({ page }
   await page.waitForSelector(COOKIE_PROMPT.ACCEPT_ALL_COOKIES_BUTTON);
   await page.click(COOKIE_PROMPT.ACCEPT_ALL_COOKIES_BUTTON);
 
-  await checkAnalyticsEvent(page, 'acceptAllCookiesButtonClick', {
+  await checkAnalyticsEvent(page, 'acceptAllCookiesButtonClick.json', {
     '%VAL1%': 'granted',
     '%VAL2%': 'granted',
   });

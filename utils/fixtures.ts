@@ -5,7 +5,7 @@ export function loadFixtureWithReplacements(
   relativePath: string,
   replacements?: Record<string, string | number>
 ) {
-  const filePath = path.join(__dirname, '..', 'fixtures', relativePath + '.json');
+  const filePath = path.join(__dirname, '..', 'fixtures', relativePath);
   const raw = fs.readFileSync(filePath, 'utf-8');
   const json = JSON.parse(raw);
 
