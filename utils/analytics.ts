@@ -72,7 +72,24 @@ function logEventsOnFailure(events: unknown[] | undefined, expected: unknown) {
 
   console.log('[AnalyticsSpy] Expected event:\n', JSON.stringify(expected, null, 2));
 }
-
+/**
+ * Initializes analytics spy functionality to capture and monitor analytics events.
+ * This function injects a script into the page that intercepts analytics events
+ * pushed to the configured data layer (e.g., adobeDataLayer, dataLayer, gtag).
+ *
+ * @param page - The Playwright page object to inject the analytics spy into
+ *
+ * @example
+ * ```typescript
+ * // Use in a test to monitor analytics
+ * test('Check analytics after clicking button', async ({ page }) => {
+ *   await initAnalyticsSpy(page);
+ *   await page.goto('http://example.com');
+ *   await page.locator('#submit-button').click();
+ *   await checkAnalyticsEvent(page, 'button-click');
+ * });
+ * ```
+ */
 export async function initAnalyticsSpy(page: Page) {
   await page.addInitScript(
     config => {
@@ -134,6 +151,35 @@ export async function initAnalyticsSpy(page: Page) {
   );
 }
 
+/**
+ * Verifies that a specific analytics event was captured by comparing it against a fixture file.
+ * This function polls for captured analytics events and matches them against the expected event
+ * loaded from the fixture file with optional dynamic replacements.
+ *
+ * @param page - The Playwright page object to check analytics events from
+ * @param fixtureName - Name of the fixture file in the analytics directory (without .json extension, e.g., 'button-click')
+ * @param replacements - Optional object containing placeholder-value pairs for dynamic replacement in the fixture
+ * @param timeoutMs - Maximum time to wait for the event in milliseconds (default: 10000)
+ * @param pollIntervalMs - Interval between checks in milliseconds (default: 250)
+ *
+ * @throws {Error} Throws an error if the expected analytics event is not found within the timeout period
+ *
+ * @example
+ * ```typescript
+ * test('Check analytics after clicking button', async ({ page }) => {
+ *   await initAnalyticsSpy(page);
+ *   await page.goto('http://example.com');
+ *   await page.locator('#submit-button').click();
+ *   await checkAnalyticsEvent(page, 'button-click');
+ * });
+ * ```
+ *
+ * @remarks
+ * - Must be called after `initAnalyticsSpy()` has been initialized
+ * - The fixture file should be located in `fixtures/analytics/` directory
+ * - Uses deep matching to compare actual vs expected events
+ * - On failure, logs captured events for debugging (controlled by analyticsConfig.debugAnalytics)
+ */
 export async function checkAnalyticsEvent(
   page: Page,
   fixtureName: string,

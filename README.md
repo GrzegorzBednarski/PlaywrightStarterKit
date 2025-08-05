@@ -341,7 +341,7 @@ This file controls how analytics events are captured and filtered during tests.
 
 ```ts
 export const analyticsConfig = {
-  source: 'dataLayer', // name of the global array used for analytics
+  source: 'dataLayer', // name of the global array used for analytics (e.g., adobeDataLayer, dataLayer, gtag)
   debugAnalytics: 'ifFail', // 'always' | 'never' | 'ifFail'
   enableFiltering: true,
   filterKey: 'event:pageEvent', // 'key' | 'value' | 'key:value'
