@@ -92,50 +92,61 @@ To run only the functional tests located in the tests/functional folder:
 npm run pw:run:functional:example
 ```
 
-## Test Reports
+## 📁 Framework Structure
 
-The `build` folder is automatically cleaned before each test run by the global setup script (see `global-setup.ts`). This ensures that reports and artifacts are always generated in a fresh directory, regardless of the number of workers or CI/CD environment.
-
-All reporter output files are configured to be saved in the `build` folder, as defined in `playwright.config.ts`. This folder is used for CI/CD integration and is ignored by git.
-
-PlaywrightStarterKit supports multiple reporting formats to help you analyze test results.
-
-### Built-in HTML Reporter
-
-Playwright includes a built-in HTML reporter that generates a visual report after test execution.
-
-**Note:** The HTML reporter is already configured in this project and will be used automatically after running tests. You do not need to specify `--reporter=html` manually.
-
-**Example configuration:**
-
-```ts
-reporter: [['html', { outputFolder: 'build/html-report', open: 'never' }]];
+```
+PlaywrightStarterKit/
+├── 📁 build/            # Generated reports and artifacts (auto-created)
+│   ├── accessibility-reports/
+│   ├── html-report/
+│   ├── json/
+│   ├── junit/
+│   └── performance-reports/
+├── 📁 config/           # Global configuration files
+│   ├── accessibilityConfig.ts
+│   ├── analyticsConfig.ts
+│   ├── dotenvConfig.ts
+│   └── performanceConfig.ts
+├── 📁 data/             # Test data and constants
+│   ├── intercepts.ts    # URL patterns for request mocking
+│   ├── paths.ts         # Page URLs and navigation
+│   └── selectors.ts     # Element selectors
+├── 📁 docs/             # Documentation files
+│   ├── accessibility.md
+│   ├── analytics.md
+│   ├── eslint.md
+│   └── ... (other tool docs)
+├── 📁 env/              # Environment variables (.env files)
+├── 📁 fixtures/         # Test fixtures and mock data
+│   ├── analytics/       # Analytics event fixtures
+│   └── intercepts/      # HTTP response fixtures
+├── 📁 tests/            # Test files organized by type
+│   ├── accessibility/   # WCAG compliance tests
+│   ├── analytics/       # Event tracking tests
+│   ├── functional/      # Feature and UI tests
+│   └── performance/     # Performance and Core Web Vitals
+├── 📁 utils/            # Utility functions and helpers
+│   ├── accessibility.ts
+│   ├── analytics.ts
+│   ├── performance.ts
+│   └── ... (other utilities)
+├── eslint.config.js     # ESLint configuration
+├── global-setup.ts      # Pre-test setup (cleaning build folder)
+├── global-teardown.ts   # Post-test cleanup (merging reports)
+├── playwright.config.ts # Main Playwright configuration
+└── tsconfig.json        # TypeScript configuration
 ```
 
-This project is configured to generate all three report types simultaneously: HTML for visual inspection, JUnit for CI/CD integration, and JSON for custom processing.
+### Key Directories
 
-To view the HTML report, use the provided script:
-
-```sh
-npm run pw:report
-```
-
-This will open the generated file in `build/html-report/index.html` after your test run.
-
-### JSON / JUnit Reporters
-
-For CI/CD integration or custom dashboards, you can use other reporters like `json` or `junit`.
-
-**Example configuration:**
-
-```ts
-reporter: [
-  ['json', { outputFile: 'build/json/results.json' }],
-  ['junit', { outputFile: 'build/junit/results.xml' }],
-];
-```
-
-These files can be parsed by CI tools like Jenkins, GitHub Actions, or Azure DevOps.
+- **`build/`** - Auto-generated reports and test artifacts (cleaned before each run)
+- **`config/`** - Global configuration for different testing features and tools
+- **`data/`** - Centralized test data management (URLs, selectors, mock patterns)
+- **`docs/`** - Comprehensive documentation for all framework features
+- **`env/`** - Environment-specific variables and secrets (.env files)
+- **`fixtures/`** - Mock data and expected results for automated testing
+- **`tests/`** - Test files organized by type for better maintainability
+- **`utils/`** - Reusable helper functions and framework integrations
 
 ## Environment Configuration
 
@@ -248,505 +259,34 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 
 ## Configuration
 
-### Main config - [documentation](https://playwright.dev/docs/test-configuration)
+### 🔧 Core Configuration
+- **[Main config](./docs/playwrightConfig.md)** - Playwright test configuration and global setup
+- **[Test Reports](./docs/testReports.md)** - HTML, JSON, JUnit, and console reporters
 
-General configuration is set in the `playwright.config.ts` file. This file contains global settings such as timeouts, parallelism, baseURL, and other options that apply to all tests by default.
+### 🎨 Code Quality & Formatting
+- **[ESLint](./docs/eslint.md)** - Code linting and static analysis
+- **[Prettier](./docs/prettier.md)** - Code formatting and style enforcement
+- **[TypeScript](./docs/typescript.md)** - Type checking and compiler settings
 
-**Key configuration options and their purposes:**
+### 🔗 Git Automation
+- **[Husky](./docs/husky.md)** - Git hooks management and pre-commit automation
+- **[Lint-staged](./docs/lintStaged.md)** - Pre-commit file processing and quality checks
 
-- **Global Setup**: Use `globalSetup` to run setup tasks before all tests (e.g., cleaning directories, preparing test data)
-- **Parallel Execution**: Enable `fullyParallel: true` to run tests simultaneously for faster execution
-- **Retries**: Set `retries` to automatically retry failed tests and reduce flakiness
-- **Artifacts**: Configure `screenshot`, `video`, and `trace` options to capture debugging information when needed
-- **Workers**: Control `workers` count to optimize performance based on environment (fewer in CI, more locally)
-- **Timeouts**: Set global `timeout` for tests and `expect.timeout` for assertions
-- **Output Directory**: Use `outputDir` to specify where test artifacts are stored
-
-**Example configuration structure:**
-
-```ts
-export default defineConfig({
-  globalSetup: require.resolve('./global-setup'),
-  testDir: './tests',
-  retries: 1,
-  fullyParallel: true,
-  timeout: 8000,
-  expect: { timeout: 5000 },
-  outputDir: `${buildDir}/artifacts`,
-  workers: process.env.CI ? 2 : 4,
-  use: {
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
-    trace: 'on-first-retry',
-  },
-  // ... reporter and project configurations
-});
-```
-
-### Overwriting config values - [documentation](https://playwright.dev/docs/test-configuration#overriding-configuration)
-
-You can overwrite specific configuration parameters by passing them via the command line interface (CLI) or by using environment-specific config files. This allows you to change settings for a single test run without modifying the main configuration file.
-
-For example, you can set the environment using the `ENV` variable to load a specific config file for development, staging, or production (see the [Environment Configuration](#environment-configuration) section for more details). This is useful for managing settings that vary between different environments.
-
-You can also override some Playwright options directly in the CLI, e.g.:
-
-```sh
-npx playwright test --grep "@smoke" --workers=2
-```
-
-This flexibility allows you to tailor test runs to your needs without changing the main config file.
-
-### Accessibility Configuration
-
-Configuration for accessibility testing is defined in `config/accessibilityConfig.ts`. This file allows you to set global preferences for WCAG compliance levels, rules to ignore, and report settings.
-
-**Available tags:**
-- `'wcag2a'`       → WCAG 2.0 Level A
-- `'wcag2aa'`      → WCAG 2.0 Level AA
-- `'wcag21a'`      → WCAG 2.1 Level A
-- `'wcag21aa'`     → WCAG 2.1 Level AA
-- `'wcag22aa'`     → WCAG 2.2 Level AA
-- `'section508'`   → US Section 508 compliance
-- `'best-practice'`→ General accessibility best practices
-
-**Example configuration (`config/accessibilityConfig.ts`):**
-
-```ts
-const accessibilityConfig = {
-  tags: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'],
-  ignoredRules: {
-    'color-contrast': false,
-  },
-  reportConsole: {
-    impact: true,
-    id: true,
-    description: false,
-    help: true,
-    helpUrl: false,
-    nodes: true,
-  },
-  reportsOutputFolder: `${buildDir}/accessibility-reports`,
-};
-```
-
-For more details on how to use this in your tests, see [Accessibility Usage](#accessibility).
-
-### Analytics Configuration
-
-Configuration for analytics spying is defined in `config/analyticsConfig.ts`.
-This file controls how analytics events are captured and filtered during tests.
-
-**Example structure:**
-
-```ts
-export const analyticsConfig = {
-  source: 'dataLayer', // name of the global array used for analytics (e.g., adobeDataLayer, dataLayer, gtag)
-  debugAnalytics: 'ifFail', // 'always' | 'never' | 'ifFail'
-  enableFiltering: true,
-  filterKey: 'event:pageEvent', // 'key' | 'value' | 'key:value'
-};
-```
-
-- **source**: name of the global array (e.g., `dataLayer`) where events are pushed.
-- **debugAnalytics**: controls logging behavior:
-  - `'always'`: log all matching events
-  - `'never'`: disable logging
-  - `'ifFail'`: log only when `checkAnalyticsEvent` fails
-- **enableFiltering**: whether to filter events using `filterKey`
-- **filterKey**: string used to match events (e.g., `event:pageEvent`)
-
-See [Analytics Usage](#analytics) for examples of how to use this configuration in tests.
-
-### ESLint - [documentation](https://eslint.org/docs/user-guide/configuring/rules)
-
-ESLint is used for static code analysis and enforcing code quality. You can change its configuration in the `eslint.config.js` file.
-
-To manually run ESLint and automatically fix issues, use:
-
-```sh
-npm run pw:eslint
-```
-
-### Husky - [documentation](https://typicode.github.io/husky/#/)
-
-Husky is used to manage Git hooks and automate tasks like linting and formatting before commits. It helps enforce code quality by running tools such as lint-staged automatically.
-
-After cloning the repository and running `npm install` or `npm ci`, Husky will be set up automatically (thanks to the `prepare` script in `package.json`). No additional manual steps are required for contributors.
-
-#### Pre-commit hook for monorepo
-
-The `.husky/pre-commit` script is prepared to support both single-repo and monorepo setups. To add more packages in a monorepo, simply update the `packages` array in `.husky/pre-commit`:
-
-```sh
-packages=("./" "packages/app1" "packages/app2")
-```
-
-This will run lint-staged in each specified package directory before every commit, ensuring code quality across all parts of the monorepo.
-
-You can add more hooks or customize existing ones by editing or adding scripts in the `.husky/` directory.
-
-### Lint-staged - [documentation](https://github.com/okonet/lint-staged)
-
-Lint-staged runs a set of predefined actions only on files that have been changed and staged in Git before a commit. This ensures that only the changes you're about to commit are checked and processed by the linters and formatters, helping to keep the codebase clean and consistent.
-
-We use it to run ESLint and Prettier automatically on staged files (see the `lint-staged` section in `package.json`).
-
-### Prettier - [documentation](https://prettier.io/docs/en/options.html)
-
-Prettier is a code formatter tool. You can change its configuration in the `.prettierrc` file.
-
-To manually format all `.js` and `.ts` files, run:
-
-```sh
-npm run pw:prettier
-```
-
-You can adjust these settings in `.prettierrc` to fit your team's preferences.
-
-### TypeScript
-
-This project uses TypeScript for writing tests and configuration files. TypeScript provides static typing and improved code quality.
-
-TypeScript configuration is located in the `tsconfig.json` file. You can adjust compiler options there to fit your needs.
-
-All test files should use the `.ts` extension (e.g., `sample-functional.spec.ts`).
-
-For more information about TypeScript, see:
-
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
-- [Playwright & TypeScript](https://playwright.dev/docs/test-typescript)
+### 🧪 Testing Features
+- **[Accessibility](./docs/accessibility.md)** - WCAG compliance and automated accessibility testing
+  - [Configuration](./docs/accessibility.md#configuration) | [Usage](./docs/accessibility.md#usage)
+- **[Analytics](./docs/analytics.md)** - Event tracking verification and data layer testing
+  - [Configuration](./docs/analytics.md#configuration) | [Usage](./docs/analytics.md#usage)
+- **[Performance](./docs/performance.md)** - Core Web Vitals and Lighthouse audits
+  - [Configuration](./docs/performance.md#configuration) | [Usage](./docs/performance.md#usage)
 
 ## Usage
 
-### Accessibility
-
-This project uses `axe-core` to run automated accessibility tests. The tests are designed to catch common accessibility issues and ensure compliance with WCAG standards. We provide a helper function `runAccessibilityScan` to simplify running these checks.
-
-**Example usage**
-
-```ts
-import { test } from '@playwright/test';
-import runAccessibilityScan from '../../utils/accessibility';
-
-test('Homepage accessibility', async ({ page }) => {
-  await page.goto('/');
-  await runAccessibilityScan(page);
-});
-```
-
-**Overriding Configuration in Tests**
-You can override the default configuration for a specific test by passing an options object to the `runAccessibilityScan` function.
-
-**Example (`tests/accessibility/accessibility.spec.ts`):**
-
-```ts
-test('Careers page accessibility', async ({ page }) => {
-  await page.goto('/careers');
-  await runAccessibilityScan(page, {
-    tags: ['best-practice'],
-    ignoredRules: {
-      'landmark-banner-is-top-level': true,
-    },
-  });
-});
-```
-
-**Reports**
-After running the tests, two reports are generated in the `build/accessibility-reports` folder:
-
-- `accessibility-report.json`: A detailed JSON file with all violations.
-- `accessibility-report.md`: A human-readable Markdown report summarizing the findings.
-
-For configuration details, see [Accessibility Configuration](#accessibility-configuration).
-
-### Analytics
-
-We provide two helper functions to verify if analytics events are correctly pushed to the data layer.
-
-The first function, `initAnalyticsSpy`, injects a spy into the page and starts capturing analytics events. It should be called before any user interactions that trigger analytics.
-
-The second function, `checkAnalyticsEvent`, compares the captured events with the expected result defined in a fixture file.
-
-**Example usage**
-
-```ts
-import { test } from '@playwright/test';
-import { initAnalyticsSpy, checkAnalyticsEvent } from './helpers/analytics';
-
-test('Check analytics after clicking the logo', async ({ page }) => {
-  await page.goto('http://www.example.com');
-  await initAnalyticsSpy(page);
-  await page.locator('#logo').click();
-  await checkAnalyticsEvent(page, 'clicks/logo');
-});
-```
-
-In the example above, we first navigate to the page and initialize the analytics spy. Then we perform an action (clicking the logo), and finally verify that the expected analytics event was captured.
-
-**Example fixture file**
-Located under `fixtures/analytics/clicks/logo.json`:
-
-```json
-{
-  "event": "pageEvent",
-  "actionType": "click",
-  "clickType": "internal",
-  "pageElement": {
-    "siteSection": "MastHead TopNav",
-    "elementLayer1": "top-navigation",
-    "elementLayer2": "image",
-    "itemIdentifier": "Brand logo"
-  }
-}
-```
-
-**Dynamic placeholders**
-If your expected analytics event contains dynamic values (e.g., URL or element name), you can use placeholders in the fixture file and pass replacements to `checkAnalyticsEvent`.
-
-**Example fixture file with placeholders:**
-
-```json
-{
-  "event": "pageEvent",
-  "actionType": "click",
-  "clickType": "internal",
-  "pageElement": {
-    "siteSection": "MastHead MegaMenu",
-    "elementLayer1": "snippet reference-megamenu-v2-tablet-variant-disabled",
-    "elementLayer2": "megamenu",
-    "elementLayer3": "richtext",
-    "itemIdentifier": "%NAME%",
-    "internalDestination": "%URL%"
-  }
-}
-```
-
-**Example usage with replacements:**
-
-```ts
-test('Check analytics after clicking dynamic link', async ({ page }) => {
-  const link = page.locator('a.dynamicTitle');
-  const url = await link.getAttribute('href');
-  const title = await link.textContent();
-
-  await checkAnalyticsEvent(page, 'clicks/dynamic-title', {
-    '%URL%': url!,
-    '%NAME%': title!,
-  });
-});
-```
-
-In this example, we extract dynamic values from the page and pass them as replacements to match the expected analytics event.
-For configuration details, see [Analytics Configuration](#analytics-configuration).
-
-### Intercepting requests with fixtures
-
-In addition to the features described above, this project includes a custom utility function for intercepting HTTP requests and responding with data from a fixture file. This can be useful for testing different server responses without having to modify your backend.
-
-**Configuration**
-
-First, define your URL patterns in `data/intercepts.ts`:
-
-```typescript
-export const INTERCEPTS = {
-  PUBLIC_TRAINING_LIBRARY: '*/api/public/*/training/library*',
-  PUBLIC_TRAINING_LIBRARY_REGEXP: /\/api\/public\/.*\/training\/library/,
-};
-```
-
-You can use either:
-- **String patterns with wildcards** (`*`) - these will be automatically converted to RegExp
-- **Direct RegExp patterns** - for more complex matching
-
-**Fixture files**
-
-Create your response data in `fixtures/intercepts/` directory. For example, create `fixtures/intercepts/trainingLibrary.json`:
-
-```json
-{
-  "data": [
-    {
-      "id": "course-123",
-      "title": "Introduction to Testing - %TODAY_DATE%",
-      "type": "Course",
-      "duration": "30 minutes"
-    },
-    {
-      "id": "path-456", 
-      "title": "Advanced Learning Path",
-      "type": "LearningPath",
-      "duration": "2 hours"
-    }
-  ],
-  "totalCount": 2
-}
-```
-
-Note the `%TODAY_DATE%` placeholder - this can be dynamically replaced in your tests.
-
-**Usage in tests**
-
-The `interceptWithFixture` function takes the following parameters:
-- `page`: The Playwright page object
-- `urlPattern`: URL pattern (string with wildcards or RegExp) 
-- `fixtureName`: Path to the fixture file (with .json extension)
-- `options`: Optional configuration object with the following properties:
-  - `method`: HTTP method to intercept (default: 'GET')
-  - `statusCode`: HTTP status code to return (default: 200)
-  - `replacements`: Object with dynamic value replacements
-
-Here's an example of how to use this in your tests:
-
-```typescript
-import { test, expect } from '@playwright/test';
-import { interceptWithFixture } from '../../utils/interceptWithFixture';
-import { INTERCEPTS } from '../../data/intercepts';
-
-test('should display mocked training courses', async ({ page }) => {
-  const today = new Date().toLocaleDateString('en-US');
-  
-  await interceptWithFixture(
-    page,
-    INTERCEPTS.PUBLIC_TRAINING_LIBRARY_REGEXP,
-    'trainingLibrary.json',
-    {
-      replacements: { '%TODAY_DATE%': today }
-    }
-  );
-
-  await page.goto('/training-library');
-  
-  // Verify the mocked data appears with today's date
-  await expect(page.locator('h3').filter({ hasText: `Introduction to Testing - ${today}` })).toBeVisible();
-  await expect(page.locator('h3').filter({ hasText: 'Advanced Learning Path' })).toBeVisible();
-});
-```
-
-**Advanced usage examples**
-
-You can also intercept different HTTP methods and return different status codes:
-
-```typescript
-// Intercept POST request and return 201 Created
-await interceptWithFixture(
-  page,
-  INTERCEPTS.COURSE_ENROLLMENT,
-  'enrollmentSuccess.json',
-  {
-    method: 'POST',
-    statusCode: 201,
-    replacements: { 
-      '%USER_ID%': '12345',
-      '%ENROLLMENT_DATE%': new Date().toISOString()
-    }
-  }
-);
-
-// Intercept and return error response
-await interceptWithFixture(
-  page,
-  INTERCEPTS.USER_PROFILE,
-  'userNotFound.json',
-  {
-    method: 'GET',
-    statusCode: 404
-  }
-);
-```
-
-In this example, we're intercepting requests to the training library API and responding with data from the `trainingLibrary.json` fixture file. The `%TODAY_DATE%` placeholder in the fixture is dynamically replaced with the current date.
-
-**Note:** The fixture file path is relative to the `fixtures/intercepts/` directory and must include the `.json` extension.
-
-### iFrames
-
-In Playwright, you can interact with elements inside iframes using the `frameLocator` API. This allows you to easily locate and interact with elements within nested browsing contexts.
-
-Sample usage:
-
-```ts
-// Locate the iframe by selector (e.g., title or other attribute)
-const frame = page.frameLocator('iframe[title="Your Iframe Title"]');
-// Interact with elements inside the iframe
-await frame.locator('selector-inside-iframe').click();
-await frame.locator('input[name="example"]').fill('value');
-```
-
-You can also assert the presence or visibility of elements inside iframes:
-
-```ts
-await expect(frame.locator('button[type="submit"]')).toBeVisible();
-```
-
-For more details, see the [Playwright documentation on frames](https://playwright.dev/docs/frames).
-
-### Network Idle State
-
-When dealing with pages that load content dynamically via AJAX requests or have complex loading sequences, you may need to wait for the page to reach a stable state before interacting with elements. The `waitForPageIdle` utility function helps with this by waiting until no network requests have been sent for 500ms.
-
-```ts
-import { waitForPageIdle } from '../../utils/waitForPageIdle';
-
-test('should interact with dynamically loaded content', async ({ page }) => {
-  await page.goto('/complex-page');
-  await waitForPageIdle(page);
-  await page.locator('#dynamic-button').click();
-});
-```
-
-This function first attempts to use Playwright's built-in `waitForLoadState('networkidle')` and falls back to manual network monitoring if no active navigation is detected.
-
-**Visual Testing Recommendation:** It's particularly important to use `waitForPageIdle` before taking screenshots or performing visual tests to ensure all dynamic content has finished loading and the page is in a stable state for comparison.
-
-### Paths
-
-We can store all needed paths to pages that we will use during our tests in the `data/paths.ts` file.
-
-```ts
-export const PAGES = {
-  HOMEPAGE: '/',
-  ABOUT: '/about-us',
-};
-```
-
-Then use it in your test-spec file, for example:
-
-```ts
-import { PAGES } from '../../data/paths';
-// ...
-await page.goto(PAGES.HOMEPAGE);
-// ...
-```
-
-This approach helps keep your test code clean and makes it easy to update paths in one place if they change.
-
-### Selectors
-
-You can store all selectors used in your tests in the `data/selectors.ts` file. This helps keep your test code clean and maintainable by centralizing selector management.
-
-Example structure:
-
-```ts
-export const COOKIE_PROMPT = {
-  ACCEPT_ALL_COOKIES_BUTTON: '#onetrust-accept-btn-handler',
-  COOKIE_BANNER: '#onetrust-banner-sdk',
-};
-
-export const NAVIGATION = {
-  VML_LOGO: 'a[data-action="Header Logo"].logo',
-};
-```
-
-Then use only the sections you need in your test-spec file:
-
-```ts
-import { COOKIE_PROMPT, NAVIGATION } from '../../data/selectors';
-
-// ...
-await expect(page.locator(NAVIGATION.VML_LOGO)).toBeVisible();
-await expect(page.locator(COOKIE_PROMPT.COOKIE_BANNER)).toBeVisible();
-// ...
-```
-
-This approach makes it easy to update selectors in one place if they change, and keeps your test files focused on logic, not selectors.
+### 🛠️ Test Utilities
+- **[iFrames](./docs/iFrames.md)** - Working with embedded frames and nested browsing contexts
+- **[Network Idle State](./docs/networkIdleState.md)** - Waiting for page stability and AJAX completion
+- **[Intercepting Requests](./docs/interceptingRequests.md)** - HTTP response mocking and fixture-based testing
+
+### 📁 Test Organization
+- **[Paths](./docs/paths.md)** - Centralized page URL management and navigation
+- **[Selectors](./docs/selectors.md)** - Element selector organization and maintainability

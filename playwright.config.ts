@@ -14,6 +14,7 @@ export default defineConfig({
   },
   outputDir: `${buildDir}/artifacts`,
   reporter: [
+    ['list'],
     ['html', { outputFolder: `${buildDir}/html-report`, open: 'never' }],
     ['junit', { outputFile: `${buildDir}/junit/results.xml` }],
     ['json', { outputFile: `${buildDir}/json/results.json` }],
