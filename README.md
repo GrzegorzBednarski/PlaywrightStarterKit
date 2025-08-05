@@ -286,7 +286,4 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 - **[iFrames](./docs/iFrames.md)** - Working with embedded frames and nested browsing contexts
 - **[Network Idle State](./docs/networkIdleState.md)** - Waiting for page stability and AJAX completion
 - **[Intercepting Requests](./docs/interceptingRequests.md)** - HTTP response mocking and fixture-based testing
-
-### 📁 Test Organization
-- **[Paths](./docs/paths.md)** - Centralized page URL management and navigation
-- **[Selectors](./docs/selectors.md)** - Element selector organization and maintainability
+- **[Replace Text](./docs/replaceText.md)** - Modify text content in DOM elements for testing scenarios

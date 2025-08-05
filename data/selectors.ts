@@ -4,6 +4,7 @@ export const COOKIE_PROMPT = {
 };
 
 export const NAVIGATION = {
+  CAREERS_LINK: 'a.careers',
   EXPERTISE_LINK: 'a.expertise',
   NEWS_LINK: 'a.news',
   VML_LOGO: 'a[data-action="Header Logo"].logo',
