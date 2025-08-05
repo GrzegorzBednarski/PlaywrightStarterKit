@@ -316,7 +316,6 @@ export function mergeAccessibilityReports(
     const filePath = path.join(reportsDir, file);
     try {
       fs.unlinkSync(filePath);
-      console.log(`Cleaned up temporary file: ${file}`);
     } catch (err) {
       console.warn(`Error removing temporary file ${file}:`, err);
     }
