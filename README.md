@@ -108,13 +108,18 @@ PlaywrightStarterKit/
 │   ├── dotenvConfig.ts
 │   └── performanceConfig.ts
 ├── 📁 data/             # Test data and constants
+│   ├── cookies.ts       # Cookie definitions for testing
 │   ├── intercepts.ts    # URL patterns for request mocking
 │   ├── paths.ts         # Page URLs and navigation
 │   └── selectors.ts     # Element selectors
 ├── 📁 docs/             # Documentation files
 │   ├── accessibility.md
 │   ├── analytics.md
+│   ├── cookies.md
 │   ├── eslint.md
+│   ├── performance.md
+│   ├── replaceText.md
+│   ├── testConfiguration.md
 │   └── ... (other tool docs)
 ├── 📁 env/              # Environment variables (.env files)
 ├── 📁 fixtures/         # Test fixtures and mock data
@@ -129,6 +134,8 @@ PlaywrightStarterKit/
 │   ├── accessibility.ts
 │   ├── analytics.ts
 │   ├── performance.ts
+│   ├── replaceText.ts
+│   ├── setCookies.ts
 │   └── ... (other utilities)
 ├── eslint.config.js     # ESLint configuration
 ├── global-setup.ts      # Pre-test setup (cleaning build folder)
@@ -260,7 +267,8 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 ## Configuration
 
 ### 🔧 Core Configuration
-- **[Main config](./docs/playwrightConfig.md)** - Playwright test configuration and global setup
+- **[Main Config](./docs/playwrightConfig.md)** - Playwright test configuration and global setup
+- **[Test Configuration](./docs/testConfiguration.md)** - Advanced test execution modes, timeouts, and retries
 - **[Test Reports](./docs/testReports.md)** - HTML, JSON, JUnit, and console reporters
 
 ### 🎨 Code Quality & Formatting
