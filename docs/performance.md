@@ -57,6 +57,26 @@ const performanceConfig = {
 
 This project uses Google Lighthouse to run performance audits and measure Core Web Vitals. The tests generate both HTML and JSON reports and compare results against configurable thresholds. We provide a helper function `runPerformanceAudit` to simplify running these audits.
 
+**Basic test setup**
+
+```ts
+import { test } from '@playwright/test';
+import runPerformanceAudit from '../utils/performance';
+
+// Configure performance tests to run serially with extended timeout
+test.describe.configure({ timeout: 60000, mode: 'serial' });
+
+test('Performance audit for homepage', async ({ page }) => {
+  await page.goto('https://www.example.com');
+  await runPerformanceAudit(page);
+});
+```
+
+**Why use `serial` mode and extended timeout:**
+- **Serial execution** prevents multiple Lighthouse audits from running simultaneously, which could affect performance measurements
+- **Extended timeout** (60s) accommodates Lighthouse audit duration, which can take 30-45 seconds per test
+- **Isolated results** ensures each audit gets dedicated system resources for accurate measurements
+
 **Example usage**
 
 ```ts

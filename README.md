@@ -283,6 +283,8 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 ## Usage
 
 ### 🛠️ Test Utilities
+- **[Cookies Management](./docs/cookies.md)** - Inject predefined cookies for bypassing banners and setting preferences
+    - [Configuration](./docs/cookies.md#configuration) | [Usage](./docs/cookies.md#usage) | [Cookie Scenarios](./docs/cookies.md#cookie-scenarios)
 - **[iFrames](./docs/iFrames.md)** - Working with embedded frames and nested browsing contexts
 - **[Network Idle State](./docs/networkIdleState.md)** - Waiting for page stability and AJAX completion
 - **[Intercepting Requests](./docs/interceptingRequests.md)** - HTTP response mocking and fixture-based testing

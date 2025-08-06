@@ -2,7 +2,7 @@ import { test } from '@playwright/test';
 import runPerformanceAudit from '../../utils/performance';
 import { PAGES } from '../../data/paths';
 
-test.describe.configure({ timeout: 60000 });
+test.describe.configure({ timeout: 60000, mode: 'serial' });
 
 test('Performance audit - Homepage', async ({ page }) => {
   await page.goto(PAGES.HOMEPAGE);
