@@ -4,12 +4,12 @@ import { COOKIE_PROMPT, NAVIGATION } from '../../data/selectors';
 import replaceText from '../../utils/replaceText';
 import { setCookies } from '../../utils/setCookies';
 
-test('should display logo on the homepage', async ({ page }) => {
+test('[sanity] should display logo on the homepage', async ({ page }) => {
   await page.goto(PAGES.HOMEPAGE);
   await expect(page.locator(NAVIGATION.VML_LOGO)).toBeVisible();
 });
 
-test('should hide cookie banner after accepting cookies', async ({ page }) => {
+test('[smoke] should hide cookie banner after accepting cookies', async ({ page }) => {
   await page.goto(PAGES.HOMEPAGE);
   await expect(page.locator(COOKIE_PROMPT.COOKIE_BANNER)).toBeVisible();
   await page.locator(COOKIE_PROMPT.ACCEPT_ALL_COOKIES_BUTTON).click();

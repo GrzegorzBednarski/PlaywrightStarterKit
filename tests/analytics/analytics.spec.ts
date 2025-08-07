@@ -3,7 +3,7 @@ import { initAnalyticsSpy, checkAnalyticsEvent } from '../../utils/analytics';
 import { PAGES } from '../../data/paths';
 import { COOKIE_PROMPT } from '../../data/selectors';
 
-test('should track analytics event after accepting all cookies', async ({ page }) => {
+test('[smoke] should track analytics event after accepting all cookies', async ({ page }) => {
   await initAnalyticsSpy(page);
   await page.goto(PAGES.HOMEPAGE);
   await page.waitForSelector(COOKIE_PROMPT.ACCEPT_ALL_COOKIES_BUTTON);

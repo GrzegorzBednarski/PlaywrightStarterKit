@@ -6,5 +6,6 @@
     "strict": true,
     "target": "ES2017"
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts"],
+  "exclude": ["**/*.js", "node_modules"]
 }

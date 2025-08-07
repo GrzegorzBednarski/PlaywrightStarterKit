@@ -2,6 +2,10 @@
 
 ← [Back to main documentation](../README.md)
 
+## Overview
+
+The PlaywrightStarterKit includes built-in performance testing capabilities using Lighthouse. This allows you to measure Core Web Vitals and other critical metrics as part of your automated testing pipeline.
+
 ## Configuration
 
 Configuration for performance testing is defined in `config/performanceConfig.ts`. This file controls Lighthouse audit settings, thresholds, and report generation options.
@@ -35,6 +39,26 @@ const performanceConfig = {
 
   debugPerformance: 'ifFail', // 'always' | 'never' | 'ifFail'
   formFactor: 'desktop', // 'desktop' | 'mobile'
+  
+  formFactorConfigs: {
+    desktop: {
+      formFactor: 'desktop',
+      screenEmulation: {
+        mobile: false,
+        width: 1920,
+        height: 1080,
+      }
+    },
+    mobile: {
+      formFactor: 'mobile',
+      screenEmulation: {
+        mobile: true,
+        width: 375,
+        height: 667,
+      }
+    }
+  },
+  
   reportsOutputFolder: `${buildDir}/performance-reports`,
 };
 ```
@@ -48,86 +72,78 @@ const performanceConfig = {
   - `'never'`: disable logging
   - `'ifFail'`: log only when thresholds are not met
 - **`formFactor`**: Default device type for emulation (`'desktop'` or `'mobile'`)
-- **`formFactorConfigs`**: Screen emulation settings for different device types
-- **`lighthouseOptions`**: Additional Lighthouse configuration options
-- **`chromeFlags`**: Chrome browser flags used during audit
+- **`formFactorConfigs`**: Screen emulation settings for different device types:
+  - `formFactor`: Type of device to emulate
+  - `screenEmulation`: Screen dimensions and mobile flag settings
 - **`reportsOutputFolder`**: Directory where performance reports are saved
 
 ## Usage
 
-This project uses Google Lighthouse to run performance audits and measure Core Web Vitals. The tests generate both HTML and JSON reports and compare results against configurable thresholds. We provide a helper function `runPerformanceAudit` to simplify running these audits.
+The framework provides utilities to run Lighthouse audits within your Playwright tests.
 
-**Basic test setup**
+### Basic Usage
 
-```ts
+```typescript
 import { test } from '@playwright/test';
-import runPerformanceAudit from '../utils/performance';
+import { runPerformanceAudit } from '../utils/performance';
 
-// Configure performance tests to run serially with extended timeout
-test.describe.configure({ timeout: 60000, mode: 'serial' });
-
-test('Performance audit for homepage', async ({ page }) => {
-  await page.goto('https://www.example.com');
-  await runPerformanceAudit(page);
+test('Homepage performance meets thresholds', async ({ page }) => {
+  await page.goto('/');
+  await runPerformanceAudit(page, 'homepage');
 });
 ```
 
-**Why use `serial` mode and extended timeout:**
-- **Serial execution** prevents multiple Lighthouse audits from running simultaneously, which could affect performance measurements
-- **Extended timeout** (60s) accommodates Lighthouse audit duration, which can take 30-45 seconds per test
-- **Isolated results** ensures each audit gets dedicated system resources for accurate measurements
+### Running Performance Tests
 
-**Example usage**
+Performance tests are located in the `tests/performance/` directory and can be run using:
 
-```ts
-import { test } from '@playwright/test';
-import runPerformanceAudit from '../utils/performance';
-
-test('Performance audit for homepage', async ({ page }) => {
-  await page.goto('https://www.example.com');
-  await runPerformanceAudit(page);
-});
+```bash
+npm run pw:test [environment] performance
 ```
 
-**Advanced usage with overrides**
+### Custom Thresholds
 
-```ts
-import { test } from '@playwright/test';
-import runPerformanceAudit from '../utils/performance';
+You can override global thresholds for specific tests:
 
-test('Mobile performance audit with custom thresholds', async ({ page }) => {
-  await page.goto('https://www.example.com/products');
+```typescript
+test('Page with custom thresholds', async ({ page }) => {
+  await page.goto('/heavy-page');
   
-  await runPerformanceAudit(page, {
-    categories: ['performance'],
-    thresholds: { performance: 0.90 },
-    formFactor: 'mobile',
-    debugPerformance: 'always'
+  await runPerformanceAudit(page, 'heavy-page', {
+    thresholds: {
+      performance: 0.3,  // Lower threshold for this specific page
+      accessibility: 0.9
+    }
   });
 });
 ```
 
-**Override options:**
+You can also customize other performance configuration options for specific tests:
 
-- **`categories`**: Override which Lighthouse categories to test
-- **`thresholds`**: Override score requirements for specific categories
-- **`formFactor`**: Force desktop or mobile emulation for this test
-- **`debugPerformance`**: Override logging behavior for this test
-- **`chromeFlags`**: Override Chrome browser flags
-- **`onlyAudits`**: Run only specific Lighthouse audits (advanced usage)
-
-## Reports
-
-Performance audits generate two types of reports in the `build/performance-reports/` directory:
-
-- **HTML reports**: Interactive Lighthouse reports viewable in browser
-- **JSON reports**: Raw audit data for programmatic analysis
-
-Report filenames include the URL, form factor, and timestamp:
+```typescript
+test('Page with custom performance configuration', async ({ page }) => {
+  await page.goto('/complex-page');
+  
+  await runPerformanceAudit(page, 'complex-page', {
+    thresholds: {
+      performance: 0.4,
+      'best-practices': 0.75
+    },
+    formFactor: 'mobile',  // Override the default form factor
+    categories: [
+      { name: 'performance', enabled: true },
+      { name: 'best-practices', enabled: true },
+      { name: 'accessibility', enabled: false },  // Disable accessibility checks for this test
+      { name: 'seo', enabled: false }
+    ],
+    debugPerformance: 'always'  // Always show performance results for this test
+  });
+});
 ```
-www.example.com_[desktop]_2025-08-05_17-13-28.html
-www.example.com_[desktop]_2025-08-05_17-13-28.json
-```
+
+### Viewing Reports
+
+Performance test reports are generated in the `build/performance-reports` directory (or custom location defined in config). HTML reports include detailed metrics and suggestions for improvement.
 
 ## Measured Metrics
 

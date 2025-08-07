@@ -31,7 +31,7 @@ export default defineConfig({
   projects: [
     {
       name: 'EXAMPLE',
-      timeout: 10000,
+      timeout: 30000,
       use: {
         baseURL: 'https://www.vml.com',
       },

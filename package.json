@@ -1,6 +1,8 @@
 {
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
+    "@percy/cli": "^1.31.1",
+    "@percy/playwright": "^1.0.9",
     "@playwright/test": "^1.54.1",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^24.1.0",
@@ -25,15 +27,9 @@
   },
   "scripts": {
     "prepare": "husky",
-    "pw:report": "npx playwright show-report build/html-report",
     "pw:eslint": "npx eslint . --ext .ts,.js --fix",
     "pw:prettier": "npx prettier --write '**/*.{js,ts}'",
-    "pw:run:accessibility:example": "cross-env ENV=example npx playwright test tests/accessibility --project=EXAMPLE",
-    "pw:run:analytics:example": "cross-env ENV=example npx playwright test tests/analytics --project=EXAMPLE",
-    "pw:run:performance:example": "cross-env ENV=example npx playwright test tests/performance --project=EXAMPLE --workers=1",
-    "pw:run:functional:example": "cross-env ENV=example npx playwright test tests/functional --project=EXAMPLE",
-    "pw:open:example": "cross-env ENV=example npx playwright test --ui --project=EXAMPLE",
-    "pw:run:example": "cross-env ENV=example npx playwright test --project=EXAMPLE"
+    "pw:test": "node scripts/run.js"
   },
   "lint-staged": {
     "**/*.{js,ts}": [

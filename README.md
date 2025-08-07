@@ -18,78 +18,93 @@ npx playwright install
 
 ## Running Tests
 
-To run tests, you must always specify the environment using the ENV variable. You can run tests in CLI or GUI mode by adding the `--ui` flag.
+The PlaywrightStarterKit uses a custom test runner that simplifies test execution across different environments and test types. The test runner is configured in `config/testRunnerConfig.js` and executed via the `scripts/run.js` file.
 
-### Example scripts in `package.json`
+### Prerequisites for running tests
 
-```json
-"scripts": {
-  "pw:run:example": "cross-env ENV=example npx playwright test --project=EXAMPLE",
-  "pw:open:example": "cross-env ENV=example npx playwright test --ui --project=EXAMPLE",
-  "pw:run:accessibility:example": "cross-env ENV=example npx playwright test tests/accessibility --project=EXAMPLE"
-  "pw:run:analytics:example": "cross-env ENV=example npx playwright test tests/analytics --project=EXAMPLE",
-  "pw:run:functional:example": "cross-env ENV=example npx playwright test tests/functional --project=EXAMPLE",
-}
-```
+Before running tests, ensure you have properly configured:
 
-To run tests, use one of the following commands:
+- [**Project-based configuration**](./docs/environmentConfig.md#project-based-configuration)
 
-```sh
-npm run pw:run:example               # Run all tests in CLI mode
-npm run pw:open:example              # Run all tests in Playwright UI mode
-npm run pw:run:accessibility:example # Run only accessibility tests
-npm run pw:run:analytics:example     # Run only analytics tests
-npm run pw:run:functional:example    # Run only functional tests
-```
+- [**Secrets and environment files**](./docs/environmentConfig.md#environment-variables-and-secrets)
 
-### Running Tests for a Specific Environment
+- [**Test Runner Configuration**](./docs/testRunner.md)
 
-To run tests for a specific environment, set the ENV variable and specify the project name (see [Environment Configuration](#environment-configuration)):
+### Basic Usage
+
+To run tests, use the following command structure:
 
 ```sh
-cross-env ENV=staging npx playwright test --project=STAGING --ui
+npm run pw:test [environment] [test-type]
 ```
 
-You can also add scripts to your `package.json` for convenience:
-
-```json
-"scripts": {
-  "pw:run:staging": "cross-env ENV=staging npx playwright test --project=STAGING",
-  "pw:open:staging": "cross-env ENV=staging npx playwright test --ui --project=STAGING"
-}
-```
-
-Then run:
+Or to run tests matching a specific tag pattern:
 
 ```sh
-npm run pw:run:staging
-npm run pw:open:staging
+npm run pw:test [environment] grep:[pattern]
 ```
 
-### Running Analytics Tests
-
-To run only the analytics tests located in the tests/analytics folder:
+### Available Commands
 
 ```sh
-npm run pw:run:analytics:example
+npm run pw:test help               # Shows help with all available options
+npm run pw:test report             # Opens the HTML test report
+npm run pw:test [env] open         # Launches UI mode for selected environment
+npm run pw:test [env] [testType]   # Runs tests of given type or group on selected environment
+npm run pw:test [env] grep:[tag]   # Runs tests matching a specific tag pattern
 ```
 
-### Running Accessibility Tests
-
-To run only the accessibility tests located in the `tests/accessibility` folder:
+### Examples
 
 ```sh
-npm run pw:run:accessibility:example
+npm run pw:test dev functional     # Run functional tests in dev environment
+npm run pw:test qa accessibility   # Run accessibility tests in qa environment
+npm run pw:test stg all            # Run all test types in staging environment
+npm run pw:test dev grep:[smoke]   # Run tests tagged with [smoke] in dev environment
+npm run pw:test qa open            # Open Playwright UI mode for qa environment
 ```
 
-For more details on how to configure accessibility tests, see the [Accessibility Testing](#accessibility-testing) section.
+### Available Environments
 
-### Running Functional Tests
+The environments are defined in `config/testRunnerConfig.js`. Below are example environments (your actual configuration may differ):
 
-To run only the functional tests located in the tests/functional folder:
+- `dev` - Development environment
+- `qa` - QA environment
+- `stg` - Staging environment
+- `prod` - Production environment
 
-```sh
-npm run pw:run:functional:example
+For detailed information about environment configuration, see [Environment Configuration](./docs/environmentConfig.md).
+
+### Available Test Types
+
+Test types are defined in `config/testRunnerConfig.js`. Examples include:
+
+- `accessibility` - Web accessibility tests
+- `analytics` - Analytics tracking tests
+- `functional` - Functional UI tests
+- `performance` - Performance tests
+- `visual` - Visual comparison tests
+
+Additionally, you can define custom test groups in the same file to run multiple test types with a single command:
+- `all` - Example group that combines multiple test types (e.g., accessibility, analytics, and functional)
+- `critical` - Example group that could include tests essential for deployments (e.g., functional and performance)
+
+For more information about test runner configuration, see [Test Runner Documentation](./docs/testRunner.md).
+
+### Test Tags (Grep Patterns)
+
+You can define grep patterns in `config/testRunnerConfig.js` to run specific tagged tests. Examples:
+
+- `grep:[smoke]` - Run tests tagged with [smoke]
+- `grep:[sanity]` - Run tests tagged with [sanity]
+- `grep:[critical]` - Run tests tagged with [critical]
+
+To tag a test, include the tag in the test title:
+
+```typescript
+test('[smoke] User can log in', async ({ page }) => {
+  // Test implementation
+});
 ```
 
 ## 📁 Framework Structure
@@ -155,111 +170,6 @@ PlaywrightStarterKit/
 - **`tests/`** - Test files organized by type for better maintainability
 - **`utils/`** - Reusable helper functions and framework integrations
 
-## Environment Configuration
-
-PlaywrightStarterKit uses two mechanisms for environment management:
-
-1. **Project-based configuration in Playwright config**
-   - Non-secret values (e.g. baseURL, timeouts, browser settings) are set in `playwright.config.ts` using the `projects` array.
-   - Each project can have its own name and config values. Example:
-     ```ts
-     export default defineConfig({
-       projects: [
-         {
-           name: 'EXAMPLE',
-           timeout: 10000,
-           use: {
-             baseURL: 'https://www.vml.com',
-           },
-         },
-         {
-           name: 'STAGING',
-           timeout: 12000,
-           use: {
-             baseURL: 'https://staging.vml.com',
-           },
-         },
-         // Add more projects here
-       ],
-     });
-     ```
-   - This allows you to run tests for different environments by specifying the project name.
-   - You can access config values (like timeout, baseURL) in your tests via the `testInfo.project` object or via Playwright's test context:
-     ```ts
-     test('should use config values', async ({ page }, testInfo) => {
-       console.log('Project name:', testInfo.project.name);
-       console.log('Project timeout:', testInfo.project.timeout);
-       console.log('Project baseURL:', testInfo.project.use.baseURL);
-     });
-     ```
-   - See [How to use config values in tests](#how-to-use-config-values-in-tests) for more details.
-
-2. **Secrets and environment variables with dotenv**
-   - Secret values (e.g. API tokens, credentials) are stored in `.env` files inside the `env/` directory (e.g. `env/.env.example`).
-   - The `config/dotenvConfig.ts` file loads the correct `.env` file based on the `ENV` variable (e.g. `ENV=example` loads `env/.env.example`).
-   - If the file for the selected environment does not exist, the fallback is set to `env/.env.example` (see `config/dotenvConfig.ts`). You can change the fallback by editing the `fallbackName` variable in that file.
-   - All files in `env/` are ignored by git except for `env/.env.example`, which serves as an example for your environment variables.
-   - Example `.env.example`:
-     ```dotenv
-     ENV=example
-     PERCY_TOKEN=xyz
-     ADMIN_USERNAME=admin@example.com
-     ADMIN_PASSWORD=super-secret
-     ```
-   - Dotenv is loaded automatically in your config, so you can use `process.env` in your tests and config files.
-
-### How dotenv works in this project
-
-- The config loads the correct `.env` file based on the `ENV` variable (e.g. `ENV=dev` loads `env/.env.dev`).
-- If the file does not exist, it falls back to `env/.env.example` (see `config/dotenvConfig.ts`).
-- You can change the fallback environment by editing the `fallbackName` variable in `config/dotenvConfig.ts`.
-- All environment variables from the file are available via `process.env` in your tests and config.
-- See [How to use environment variables in tests](#how-to-use-environment-variables-in-tests) for usage examples.
-
-### How to add a new environment
-
-1. **Add a new project to `playwright.config.ts`**
-   - Copy the example project and adjust its name and config values (e.g. add `STAGING` with its own timeout and baseURL).
-2. **Add a new secrets file to `env/`**
-   - Create a new file, e.g. `env/.env.staging`, and add your secret values.
-   - Do not commit this file to git (it is ignored by default).
-3. **Run tests for the new environment**
-   - Use the ENV variable and the project name in your npm script or CLI command:
-     ```sh
-     cross-env ENV=staging npx playwright test --project=STAGING
-     ```
-   - You can add a script to `package.json` for convenience:
-     ```json
-     "pw:run:staging": "cross-env ENV=staging npx playwright test --project=STAGING"
-     ```
-
-### How to use environment variables in tests
-
-- You can access any value from your `.env` file using `process.env`:
-  ```ts
-  console.log(process.env.ADMIN_USERNAME);
-  console.log(process.env.PERCY_TOKEN);
-  ```
-- See the test [`should display environment variables and config`](#usage) in `tests/functional/sample-functional.spec.ts` for a usage example.
-
-### How to use config values in tests
-
-- You can access config values (like timeout, baseURL, or custom values) from the current project using the `testInfo.project` object or Playwright's test context:
-  ```ts
-  test('should use config values', async ({ page }, testInfo) => {
-    console.log('Project name:', testInfo.project.name);
-    console.log('Project timeout:', testInfo.project.timeout);
-    console.log('Project baseURL:', testInfo.project.use.baseURL);
-  });
-  ```
-- This is useful for debugging or for writing tests that depend on project-specific configuration.
-
-### Best practices
-
-- Never commit real secrets or credentials to the repository.
-- Use `env/.env.example` as a template for new environments and document required variables.
-- Store non-secret config in `playwright.config.ts` projects, and secrets in `env/.env.*` files.
-
 ## Documentation
 
 - [Playwright Documentation](https://playwright.dev/docs/intro)
@@ -267,9 +177,11 @@ PlaywrightStarterKit uses two mechanisms for environment management:
 ## Configuration
 
 ### 🔧 Core Configuration
+- **[Environment Configuration](./docs/environmentConfig.md)** - Environment setup and configuration
 - **[Main Config](./docs/playwrightConfig.md)** - Playwright test configuration and global setup
 - **[Test Configuration](./docs/testConfiguration.md)** - Advanced test execution modes, timeouts, and retries
 - **[Test Reports](./docs/testReports.md)** - HTML, JSON, JUnit, and console reporters
+- **[Test Runner](./docs/testRunner.md)** - Custom test runner settings
 
 ### 🎨 Code Quality & Formatting
 - **[ESLint](./docs/eslint.md)** - Code linting and static analysis
@@ -287,6 +199,8 @@ PlaywrightStarterKit uses two mechanisms for environment management:
   - [Configuration](./docs/analytics.md#configuration) | [Usage](./docs/analytics.md#usage)
 - **[Performance](./docs/performance.md)** - Core Web Vitals and Lighthouse audits
   - [Configuration](./docs/performance.md#configuration) | [Usage](./docs/performance.md#usage)
+- **[Visual](./docs/visual.md)** - Visual regression testing with Percy
+  - [Configuration](./docs/visual.md#configuration) | [Usage](./docs/visual.md#usage)
 
 ## Usage
 

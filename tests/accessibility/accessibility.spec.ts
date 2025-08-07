@@ -7,7 +7,7 @@ test('Homepage accessibility', async ({ page }) => {
   await runAccessibilityScan(page);
 });
 
-test('Careers page accessibility', async ({ page }) => {
+test('[sanity] Careers page accessibility', async ({ page }) => {
   await page.goto(PAGES.CAREERS);
   await runAccessibilityScan(page, {
     tags: ['best-practice'],

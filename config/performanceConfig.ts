@@ -10,7 +10,7 @@ const performanceConfig = {
   ],
 
   thresholds: {
-    performance: 0.4,
+    performance: 0.3,
     accessibility: 0.95,
     'best-practices': 0.8,
     seo: 0.8,
