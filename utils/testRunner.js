@@ -195,7 +195,11 @@ function runPlaywrightTests(testPaths, envConfig, label, isVisual, grepPattern =
   const baseCommand = `playwright test ${joinedPaths} ${grepFlag} --project=${envConfig.project} ${workersFlag}`;
   const command = isVisual ? `npx percy exec -- ${baseCommand}` : `npx ${baseCommand}`;
 
-  execSync(command, { stdio: 'inherit' });
+  try {
+    execSync(command, { stdio: 'inherit' });
+  } catch (error) {
+    process.exit(1);
+  }
 }
 
 function showHelp(environments, testTypes, testGroups, grepGroups) {
