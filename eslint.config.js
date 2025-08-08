@@ -4,6 +4,7 @@ const playwrightPlugin = require('eslint-plugin-playwright');
 const importPlugin = require('eslint-plugin-import');
 const prettierPlugin = require('eslint-plugin-prettier');
 const noOnlyTestsPlugin = require('eslint-plugin-no-only-tests');
+const unusedImportsPlugin = require('eslint-plugin-unused-imports');
 
 /** @type {import('eslint').FlatConfig[]} */
 module.exports = [
@@ -33,12 +34,23 @@ module.exports = [
       'no-only-tests': noOnlyTestsPlugin,
       playwright: playwrightPlugin,
       prettier: prettierPlugin,
+      'unused-imports': unusedImportsPlugin,
     },
     rules: {
       '@typescript-eslint/no-unused-expressions': 'error',
       'import/no-extraneous-dependencies': 'warn',
       'no-only-tests/no-only-tests': 'error',
       'prettier/prettier': 'warn',
+      'unused-imports/no-unused-imports': 'error',
+      'unused-imports/no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+        },
+      ],
     },
   },
 ];
