@@ -17,6 +17,7 @@ const playwrightPlugin = require('eslint-plugin-playwright');
 const importPlugin = require('eslint-plugin-import');
 const prettierPlugin = require('eslint-plugin-prettier');
 const noOnlyTestsPlugin = require('eslint-plugin-no-only-tests');
+const unusedImportsPlugin = require('eslint-plugin-unused-imports');
 
 /** @type {import('eslint').FlatConfig[]} */
 module.exports = [
@@ -46,6 +47,7 @@ module.exports = [
       'no-only-tests': noOnlyTestsPlugin,
       playwright: playwrightPlugin,
       prettier: prettierPlugin,
+      'unused-imports': unusedImportsPlugin,
     },
     rules: {
       '@typescript-eslint/no-unused-expressions': 'error',
@@ -72,6 +74,7 @@ module.exports = [
 - `eslint-plugin-import` - Import/export validation
 - `eslint-plugin-no-only-tests` - Prevents `.only()` in tests
 - `eslint-plugin-prettier` - Integration with [Prettier](./prettier.md)
+- `eslint-plugin-unused-imports` - Automatically detects and removes unused imports
 
 ## Usage
 
